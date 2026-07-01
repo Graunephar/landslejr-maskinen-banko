@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>BANKO — Maskinen · Landslejr 2026</title>
+<style>
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; height:100%; background:#0c0906; overflow:hidden; }
+  body{
+    --orange:#ff6b1a; --orange-deep:#e0490f; --glow:#ff922e; --hot:#ffb257;
+    --teal:#3fe6cc; --party:#c94fd6; --party2:#42d6c0;
+    --bg:#140f0b; --panel:#1e1712; --plate:#efe8dd; --plate-blank:#cdbfae; --ink:#181310;
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;
+  }
+
+  /* --- Stage: always-landscape (ADR-10). Portrait → rotate whole app 90° via CSS. --- */
+  .stage{
+    width:100vw; height:100vh; width:100dvw; height:100dvh;
+    display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(120% 90% at 50% -20%,#43301d 0%,var(--bg) 55%);
+    padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+  }
+  /* Natural landscape: short viewport → cap panel by HEIGHT so chrome never hides
+     under the browser address bar (panel ≈ 2.05:1; 1.95× leaves cushion). */
+  @media (orientation:landscape){
+    .stage .bezel{ max-width:min(820px, calc((100dvh - 24px) * 1.95)); }
+  }
+  @media (orientation:portrait){
+    .stage{
+      position:fixed; top:0; left:100%;
+      width:100vh; height:100vw; width:100dvh; height:100dvw;
+      transform:rotate(90deg); transform-origin:top left;
+      padding:max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom));
+    }
+  }
+
+  .bezel{ background:linear-gradient(180deg,#d8c9a6,#b39a68); padding:7px; border-radius:15px; max-width:820px; width:100%;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -3px 6px rgba(0,0,0,.35),0 12px 34px rgba(0,0,0,.55); }
+  .panel{ position:relative; background:var(--panel); border:1px solid #3a2c1e; border-radius:9px;
+    padding:11px 14px 12px; box-shadow:inset 0 0 46px rgba(0,0,0,.6); overflow:hidden; transition:box-shadow .3s; }
+  .panel.party{ animation:disco 1.1s linear infinite; }
+  @keyframes disco{
+    0%{ box-shadow:inset 0 0 60px rgba(201,79,214,.34),0 0 0 2px rgba(255,107,26,.5) }
+    33%{ box-shadow:inset 0 0 60px rgba(63,214,192,.34),0 0 0 2px rgba(201,79,214,.6) }
+    66%{ box-shadow:inset 0 0 60px rgba(255,107,26,.4),0 0 0 2px rgba(63,214,192,.6) }
+    100%{ box-shadow:inset 0 0 60px rgba(201,79,214,.34),0 0 0 2px rgba(255,107,26,.5) }
+  }
+
+  .screw{ position:absolute; width:10px; height:10px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#d8c9a6,#6b5738 72%); box-shadow:inset 0 0 2px #000; }
+  .screw::after{ content:""; position:absolute; inset:3px; border-top:1.2px solid #2a2013; transform:rotate(35deg); }
+  .s1{top:6px;left:6px}.s2{top:6px;right:6px}.s3{bottom:6px;left:6px}.s4{bottom:6px;right:6px}
+
+  .rail{ display:flex; align-items:center; gap:10px; padding:0 2px 8px; }
+  .crt{ position:relative; width:52px; height:26px; border-radius:5px; background:#04120f; flex:none; border:1.5px solid #3a2c1e; box-shadow:inset 0 0 9px rgba(63,230,204,.35); overflow:hidden; }
+  .crt-grid{ position:absolute; inset:0; opacity:.32; background-image:linear-gradient(var(--teal) 1px,transparent 1px),linear-gradient(90deg,var(--teal) 1px,transparent 1px); background-size:8px 8px; }
+  .crt-num{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--teal); font-weight:800; font-size:14px; text-shadow:0 0 8px var(--teal) }
+  .crt-num span{ color:#6f8f88; font-size:10px }
+  .scan{ position:absolute; left:0; right:0; height:8px; background:linear-gradient(rgba(63,230,204,.18),transparent); animation:scan 2.6s linear infinite }
+  @keyframes scan{ 0%{ top:-8px } 100%{ top:26px } }
+  .knobs{ display:flex; align-items:center; gap:6px; flex:none }
+  .knob{ width:16px; height:16px; border-radius:50%; position:relative; background:radial-gradient(circle at 38% 30%,#4a3a2a,#181109 78%); border:1px solid #4a3a2a }
+  .knob::after{ content:""; position:absolute; left:50%; top:2px; width:2px; height:6px; background:var(--hot); border-radius:2px; box-shadow:0 0 3px var(--glow); transform-origin:bottom }
+  .k1::after{ transform:translateX(-50%) rotate(-40deg) } .k3::after{ transform:translateX(-50%) rotate(40deg) }
+  .tgl{ width:10px; height:16px; border-radius:2px; background:#241a12; border:1px solid #4a3a2a; position:relative }
+  .tgl.on::after{ content:""; position:absolute; left:1.5px; right:1.5px; top:1.5px; height:6px; border-radius:2px; background:var(--hot); box-shadow:0 0 4px var(--glow) }
+  .redbtn{ width:15px; height:15px; border-radius:50%; background:radial-gradient(circle at 38% 32%,#ff6a5a,#a01508 76%); border:1.5px solid #2a0d07; box-shadow:0 0 7px rgba(220,40,20,.5) }
+
+  .nameplate{ flex:1; text-align:center; line-height:1 }
+  .title{ color:var(--orange); font-weight:800; font-size:20px; letter-spacing:.26em; text-indent:.26em; text-shadow:0 0 16px rgba(255,107,26,.6); cursor:pointer; user-select:none; white-space:nowrap; }
+  .sub{ color:#a98d68; font-size:8.5px; letter-spacing:.3em; text-indent:.3em; margin-top:4px; white-space:nowrap }
+  .serial{ flex:none; color:var(--teal); font-weight:800; font-size:12px; letter-spacing:1px; text-shadow:0 0 8px var(--teal); white-space:nowrap }
+
+  .batwrap{ display:flex; align-items:stretch; gap:3px; margin:0 2px 11px; }
+  .battery{ flex:1; display:flex; gap:2px; padding:3px; background:#0c0906; border:2px solid #4a3a2a; border-radius:5px; box-shadow:inset 0 0 6px #000; }
+  .battery i{ flex:1; border-radius:1px; background:#241d15; transition:background .14s,box-shadow .14s }
+  .battery i.on.g{ background:#46d97a; box-shadow:0 0 6px #46d97a }
+  .battery i.on.a{ background:var(--hot); box-shadow:0 0 6px var(--glow) }
+  .battery i.on.r{ background:#ff4d3d; box-shadow:0 0 8px #ff4d3d }
+  .nub{ width:5px; align-self:center; height:14px; background:#4a3a2a; border-radius:0 3px 3px 0 }
+  .full .battery{ border-color:var(--orange); box-shadow:inset 0 0 6px #000,0 0 14px rgba(255,107,26,.6) }
+
+  .secret{ text-align:center; color:var(--party); font-size:10px; letter-spacing:.2em; height:0; opacity:0; overflow:hidden; transition:.35s; text-shadow:0 0 10px var(--party) }
+  .secret.show{ height:15px; opacity:1; margin-bottom:6px }
+
+  .grid{ display:grid; grid-template-columns:repeat(9,1fr); grid-template-rows:repeat(3,1fr); gap:5px; background:#100b07; padding:6px; border-radius:8px; border:1px solid #4a3a2b; container-type:inline-size; }
+  .cell{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:clamp(15px,6.4cqw,38px); font-weight:800; border-radius:6px; position:relative; }
+  .cell.num{ background:var(--plate); color:var(--ink); cursor:pointer; box-shadow:inset 0 -3px 0 rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.6); transition:transform .05s,box-shadow .1s; }
+  .cell.num:active{ transform:translateY(2px); box-shadow:inset 0 -1px 0 rgba(0,0,0,.2) }
+  .cell.blank{ background:var(--plate-blank); opacity:.26 }
+  .cell.lit{ color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.55); background:radial-gradient(circle at 50% 42%,var(--hot) 0%,var(--orange) 58%,var(--orange-deep) 100%); box-shadow:0 0 0 2px #8a2f0c,0 0 22px 4px rgba(255,107,26,.8),inset 0 2px 7px rgba(255,220,180,.6); animation:pulse 2.1s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 2px #8a2f0c,0 0 16px 3px rgba(255,107,26,.6),inset 0 2px 7px rgba(255,220,180,.6) } 50%{ box-shadow:0 0 0 2px #8a2f0c,0 0 28px 7px rgba(255,146,46,.9),inset 0 2px 7px rgba(255,220,180,.6) } }
+
+  .statusbar{ display:flex; align-items:center; gap:7px; margin-top:9px; padding:0 2px; height:16px }
+  .pwr{ width:9px; height:9px; border-radius:50%; background:var(--glow); box-shadow:0 0 8px 2px rgba(255,146,46,.8); animation:breathe 2.4s ease-in-out infinite }
+  @keyframes breathe{ 0%,100%{ opacity:.55 } 50%{ opacity:1 } }
+  .readout{ margin-left:auto; color:#a98d68; font-size:10px; letter-spacing:.2em }
+  .party .pwr{ background:var(--party2); box-shadow:0 0 10px 3px var(--party) }
+
+  /* Debug (?fejlfinding) */
+  .dbg{ display:none; gap:8px; align-items:center; margin:8px 2px 0; }
+  .dbg.on{ display:flex; }
+  .dbg button{ font-family:inherit; font-size:12px; font-weight:800; letter-spacing:.08em; color:#fff; background:radial-gradient(circle at 38% 32%,#ff6a5a,#a01508 76%); border:1.5px solid #2a0d07; border-radius:6px; padding:7px 12px; cursor:pointer; }
+  .dbg .info{ color:#a98d68; font-size:10px; }
+
+  /* --- Party overlay (ADR-12): win-type + confetti + return countdown --- */
+  .confetti{ position:absolute; inset:0; pointer-events:none; z-index:4; }
+  .win{ position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+    background:rgba(20,15,11,.74); opacity:0; pointer-events:none; transition:opacity .25s; }
+  .win.show{ opacity:1; pointer-events:auto; }
+  .win .type{ font-size:clamp(34px,9vw,60px); font-weight:900; letter-spacing:.12em; color:#fff; text-align:center;
+    text-shadow:0 0 34px var(--glow),0 0 8px var(--orange); transform:rotate(-6deg) scale(.85); transition:transform .25s; }
+  .win.show .type{ transform:rotate(-6deg) scale(1); }
+  .win .banko{ font-size:clamp(18px,4vw,26px); font-weight:800; letter-spacing:.3em; color:var(--hot); }
+  .ret{ width:70%; max-width:420px; }
+  .ret .lbl{ text-align:center; color:#e9d9bd; font-size:11px; letter-spacing:.2em; margin-bottom:6px; }
+  .ret .track{ height:10px; border-radius:6px; background:#0c0906; border:2px solid #4a3a2a; overflow:hidden; box-shadow:inset 0 0 6px #000; }
+  .ret .bar{ height:100%; width:100%; background:linear-gradient(90deg,var(--hot),var(--orange),var(--orange-deep)); }
+  .ret .bar.run{ width:0; transition:width 20s linear; }
+</style>
+</head>
+<body>
+  <div class="stage">
+  <div class="bezel">
+  <div class="panel" id="panel">
+    <span class="screw s1"></span><span class="screw s2"></span><span class="screw s3"></span><span class="screw s4"></span>
+
+    <div class="rail">
+      <div class="crt"><div class="crt-grid"></div><div class="crt-num" id="crt">00<span>/15</span></div><div class="scan"></div></div>
+      <div class="knobs"><span class="knob k1"></span><span class="knob k3"></span><span class="tgl on"></span><span class="redbtn"></span></div>
+      <div class="nameplate">
+        <div class="title" id="title">MASKINEN</div>
+        <div class="sub">BANKO · LANDSLEJR 2026</div>
+      </div>
+      <div class="serial" id="serial">MSKN-————</div>
+    </div>
+
+    <div class="batwrap">
+      <div class="battery" id="bat"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <span class="nub"></span>
+    </div>
+
+    <div class="secret" id="secret">⚡ MAGIEN ELLER TEKNOLOGIEN? ⚡</div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="statusbar">
+      <span class="pwr"></span><span class="readout">TRYK FOR AT TÆNDE LYSET</span>
+    </div>
+
+    <div class="dbg" id="dbg" hidden>
+      <button id="newplate">NY PLADE</button>
+      <span class="info" id="dbginfo"></span>
+    </div>
+
+    <canvas class="confetti" id="confetti"></canvas>
+    <div class="win" id="win">
+      <div class="type" id="wintype">BANKO!</div>
+      <div class="banko">BANKO · MASKINEN</div>
+      <div class="ret">
+        <div class="lbl">PLADEN KOMMER TILBAGE</div>
+        <div class="track"><div class="bar" id="retbar"></div></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Randomness: crypto only (ADR-6). Never Date.now / raw Math.random. ----------
+  // ponytail: modulo bias on a 32-bit draw is ~1e-9 for n<=90 — irrelevant for banko.
+  function rnd(n){ const a=new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; }
+  function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=rnd(i+1); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+  // ---------- Plate generation (classic Danish banko, 3×9). ----------
+  function colRange(c){                 // inclusive [lo,hi]
+    if(c===0) return [1,9];
+    if(c===8) return [80,90];           // 80–90 = 11 numbers (off-by-one trap)
+    return [c*10, c*10+9];
+  }
+  function drawUnique(lo,hi,k){         // k distinct numbers from [lo,hi], sorted asc
+    const pool=[]; for(let v=lo; v<=hi; v++) pool.push(v);
+    shuffle(pool);
+    return pool.slice(0,k).sort((a,b)=>a-b);
+  }
+  function pickRows(cnt){               // subset of {0,1,2} of size cnt, sorted
+    return shuffle([0,1,2]).slice(0,cnt).sort((a,b)=>a-b);
+  }
+  function colCounts(){                 // 9 columns, each 1–3, total 15
+    const c=Array(9).fill(1); let extra=6;
+    while(extra>0){ const i=rnd(9); if(c[i]<3){ c[i]++; extra--; } }
+    return c;
+  }
+  function rowLayout(counts){           // rejection-sample until every row has exactly 5 (PLAN §3)
+    for(let attempt=0; attempt<2000; attempt++){
+      const rowsOfCol = counts.map(pickRows);
+      const tot=[0,0,0];
+      rowsOfCol.forEach(rs=>rs.forEach(r=>tot[r]++));
+      if(tot[0]===5 && tot[1]===5 && tot[2]===5) return rowsOfCol;
+    }
+    throw new Error("rowLayout failed");
+  }
+  function makePlate(){                 // → 3×9 grid of number|null (explicit blanks, PLAN §3.5)
+    const counts=colCounts();
+    const rowsOfCol=rowLayout(counts);
+    const grid=[[],[],[]].map(()=>Array(9).fill(null));
+    for(let c=0;c<9;c++){
+      const [lo,hi]=colRange(c);
+      const nums=drawUnique(lo,hi,counts[c]);      // sorted asc
+      const rows=rowsOfCol[c];                      // sorted asc → smallest on top
+      rows.forEach((r,i)=> grid[r][c]=nums[i]);
+    }
+    return grid;
+  }
+
+  // ---------- Serial = FNV-1a hash of the 15 numbers (ADR-11). Deterministic, local. ----------
+  function plateNums(grid){ const out=[]; for(const row of grid) for(const v of row) if(v!=null) out.push(v); return out; }
+  function serialOf(grid){
+    let h=0x811c9dc5>>>0;
+    for(const n of plateNums(grid)){ h^=n; h=Math.imul(h,0x01000193)>>>0; }
+    return "MSKN-"+h.toString(16).toUpperCase().padStart(8,"0").slice(-4);
+  }
+
+  // ---------- Self-check (?test): 5000 plates, log rule breaks (DoD). ----------
+  function validate(grid){
+    const errs=[];
+    const nums=plateNums(grid);
+    if(nums.length!==15) errs.push("total "+nums.length);
+    if(new Set(nums).size!==nums.length) errs.push("dup numbers");
+    for(let r=0;r<3;r++){ const c=grid[r].filter(v=>v!=null).length; if(c!==5) errs.push("row "+r+" has "+c); }
+    for(let c=0;c<9;c++){
+      const col=[grid[0][c],grid[1][c],grid[2][c]].filter(v=>v!=null);
+      if(col.length<1||col.length>3) errs.push("col "+c+" has "+col.length);
+      const [lo,hi]=colRange(c);
+      for(const v of col){ if(v<lo||v>hi) errs.push("col "+c+" value "+v+" out of ["+lo+","+hi+"]"); }
+      for(let i=1;i<col.length;i++){ if(col[i]<=col[i-1]) errs.push("col "+c+" not sorted"); }
+    }
+    return errs;
+  }
+  function selfCheck(){
+    const N=5000; let breaks=0;
+    for(let i=0;i<N;i++){ const e=validate(makePlate()); if(e.length){ breaks++; if(breaks<=5) console.error("plate",i,e); } }
+    console.log("[?test] "+N+" plader, "+breaks+" regelbrud"+(breaks===0?" ✓":" ✗"));
+    document.body.innerHTML='<pre style="color:'+(breaks?'#ff4d3d':'#46d97a')+';font:16px monospace;padding:20px">'
+      +N+' plader — '+breaks+' regelbrud'+(breaks===0?' ✓ (se konsol)':' ✗ (se konsol)')+'</pre>';
+  }
+
+  // ---------- Persistence (localStorage, ADR-3). Plate pinned on first open (ADR-4). ----------
+  const K_GRID="banko.grid", K_MARKS="banko.marks";
+  function loadGrid(){
+    try{ const s=localStorage.getItem(K_GRID); if(s){ const g=JSON.parse(s); if(validate(g).length===0) return g; } }catch(e){}
+    return null;
+  }
+  function saveGrid(g){ try{ localStorage.setItem(K_GRID, JSON.stringify(g)); }catch(e){} }
+  function loadMarks(){ try{ return new Set(JSON.parse(localStorage.getItem(K_MARKS)||"[]")); }catch(e){ return new Set(); } }
+  function saveMarks(set){ try{ localStorage.setItem(K_MARKS, JSON.stringify([...set])); }catch(e){} }
+
+  // ================= app =================
+  const params=new URLSearchParams(location.search);
+  if(params.has("test")){ selfCheck(); return; }
+
+  const $=s=>document.querySelector(s);
+  const panel=$("#panel"), gridEl=$("#grid"), crt=$("#crt"), serialEl=$("#serial"), bat=[...document.querySelectorAll("#bat i")];
+  const title=$("#title"), secret=$("#secret"), win=$("#win"), winType=$("#wintype"), retbar=$("#retbar");
+
+  let grid=loadGrid();
+  if(!grid){ grid=makePlate(); saveGrid(grid); localStorage.removeItem(K_MARKS); }
+  let marks=loadMarks();
+  let prevCompleteRows=0, partyActive=false;
+
+  function litCount(){ return plateNums(grid).filter(v=>marks.has(v)).length; }
+  function completeRows(){
+    let n=0;
+    for(let r=0;r<3;r++){ const nums=grid[r].filter(v=>v!=null); if(nums.every(v=>marks.has(v))) n++; }
+    return n;
+  }
+  function refreshReadouts(){
+    const lit=litCount();
+    crt.innerHTML=String(lit).padStart(2,"0")+"<span>/15</span>";
+    bat.forEach((s,i)=>{ s.className=""; if(i<lit) s.classList.add("on", i<5?"g":i<10?"a":"r"); });
+    document.querySelector(".batwrap").classList.toggle("full", lit>=15);
+  }
+
+  function render(){
+    serialEl.textContent=serialOf(grid);
+    gridEl.innerHTML="";
+    for(let r=0;r<3;r++) for(let c=0;c<9;c++){
+      const v=grid[r][c];
+      const cell=document.createElement("div");
+      if(v==null){ cell.className="cell blank"; }
+      else{
+        cell.className="cell num"+(marks.has(v)?" lit":"");
+        cell.textContent=v; cell.dataset.n=v;
+        cell.addEventListener("click",()=>toggle(v,cell));
+      }
+      gridEl.appendChild(cell);
+    }
+    prevCompleteRows=completeRows();
+    refreshReadouts();
+  }
+
+  function toggle(v,cell){
+    if(partyActive) return;
+    if(marks.has(v)) marks.delete(v); else marks.add(v);
+    cell.classList.toggle("lit", marks.has(v));
+    saveMarks(marks);
+    refreshReadouts();
+    const now=completeRows();
+    if(now>prevCompleteRows && now>0) celebrate(now);
+    prevCompleteRows=now;
+  }
+
+  // ---------- Party sequence (ADR-12): 20s. win-type + confetti + disco + techno + return bar. ----------
+  const WIN_LABEL=[null,"1 RÆKKE","2 RÆKKER","FULD PLADE"];
+  function celebrate(rows){
+    partyActive=true;
+    winType.textContent=WIN_LABEL[rows]||"BANKO!";
+    win.classList.add("show"); panel.classList.add("party");
+    startConfetti();
+    playTechno();                                  // starts on this tap = user gesture (mobile audio rule)
+    retbar.className="bar"; void retbar.offsetWidth; retbar.classList.add("run"); // 100%→0 over 20s
+    setTimeout(()=>{
+      win.classList.remove("show"); panel.classList.remove("party");
+      stopConfetti();
+      partyActive=false;
+    },20000);
+  }
+
+  // Confetti — plain canvas, no lib.
+  const cv=$("#confetti"), cx=cv.getContext("2d");
+  let confetti=[], confAF=0;
+  const CONF_COLORS=["#ff6b1a","#ffb257","#c94fd6","#42d6c0","#fff"];
+  function startConfetti(){
+    cv.width=panel.clientWidth; cv.height=panel.clientHeight;
+    confetti=[];
+    for(let i=0;i<160;i++) confetti.push({
+      x:rnd(cv.width), y:-rnd(cv.height), w:5+rnd(7), h:8+rnd(9),
+      vy:2+rnd(4), vx:(rnd(200)-100)/50, rot:rnd(360), vr:(rnd(200)-100)/20,
+      col:CONF_COLORS[rnd(CONF_COLORS.length)]
+    });
+    cancelAnimationFrame(confAF); confAF=requestAnimationFrame(confStep);
+  }
+  function confStep(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    for(const p of confetti){
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+      if(p.y>cv.height+20){ p.y=-20; p.x=rnd(cv.width); }
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot*Math.PI/180);
+      cx.fillStyle=p.col; cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore();
+    }
+    confAF=requestAnimationFrame(confStep);
+  }
+  function stopConfetti(){ cancelAnimationFrame(confAF); cx.clearRect(0,0,cv.width,cv.height); }
+
+  // Techno stinger ~10s — four-on-floor kick + offbeat stab, Web Audio (ADR-12).
+  function playTechno(){
+    let ctx; try{ ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
+    if(ctx.state==="suspended") ctx.resume();
+    const master=ctx.createGain(); master.gain.value=0.5; master.connect(ctx.destination);
+    const bpm=140, beat=60/bpm, t0=ctx.currentTime+0.04;
+    const beats=Math.ceil(10/beat);
+    function kick(t){
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.frequency.setValueAtTime(160,t); o.frequency.exponentialRampToValueAtTime(50,t+0.12);
+      g.gain.setValueAtTime(0.9,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.16);
+      o.connect(g).connect(master); o.start(t); o.stop(t+0.18);
+    }
+    function stab(t){
+      const o=ctx.createOscillator(), g=ctx.createGain(), f=ctx.createBiquadFilter();
+      o.type="sawtooth"; o.frequency.value=220; f.type="lowpass"; f.frequency.value=1400;
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.28,t+0.01); g.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+      o.connect(f).connect(g).connect(master); o.start(t); o.stop(t+0.12);
+    }
+    for(let b=0;b<beats;b++){ kick(t0+b*beat); stab(t0+b*beat+beat/2); }
+    setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, 11000);
+  }
+
+  // ---------- Easter egg: tap MASKINEN 3× fast → party glow + secret line (ADR/ DESIGN). ----------
+  let taps=0, tt=null;
+  title.addEventListener("click",()=>{
+    taps++; clearTimeout(tt); tt=setTimeout(()=>taps=0,800);
+    if(taps>=3){ taps=0; panel.classList.add("party"); secret.classList.add("show");
+      setTimeout(()=>{ if(!partyActive) panel.classList.remove("party"); secret.classList.remove("show"); },4000); }
+  });
+
+  // ---------- Debug mode (?fejlfinding): Ny plade-knap (ADR-9). Not for participants. ----------
+  if(params.has("fejlfinding")){
+    const dbg=$("#dbg"); dbg.classList.add("on");
+    const counts={}; for(let c=0;c<9;c++){ counts[c]=grid.filter(row=>row[c]!=null).length; }
+    $("#dbginfo").textContent="pr. kol: "+Object.values(counts).join(" ");
+    $("#newplate").addEventListener("click",()=>{
+      if(!confirm("Ny plade? Overskriver den gemte plade OG alle kryds.")) return;
+      grid=makePlate(); saveGrid(grid); marks=new Set(); saveMarks(marks);
+      prevCompleteRows=0; render();
+      const cc={}; for(let c=0;c<9;c++){ cc[c]=grid.filter(row=>row[c]!=null).length; }
+      $("#dbginfo").textContent="pr. kol: "+Object.values(cc).join(" ");
+    });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

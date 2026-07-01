@@ -63,7 +63,7 @@ Menneskelig opråber trækker og råber tal som til almindeligt banko. Appen er
 
 ### ADR-5 — Look = Maskinen
 - **Status:** Adopted
-- **Valg:** Senior-orange `#d6833a` på mørk baggrund, monospace-overskrifter.
+- **Valg:** Senior-orange `#ff6b1a` på mørk baggrund, monospace-overskrifter.
   Titel: "BANKO — Maskinen · Landslejr 2026".
 
 ### ADR-6 — Unikke plader via god tilfældighed, ikke via server
@@ -83,6 +83,19 @@ Menneskelig opråber trækker og råber tal som til almindeligt banko. Appen er
   per-id links (`?id=1..N`, deterministisk plade per id, mennesker uddeler numre i
   rækkefølge). Stadig offline, stadig ingen backend, men garanteret unikt.
 
+### ADR-7 — Reserveplader i papir som faldskærm
+- **Status:** Adopted
+- **Kontekst:** localStorage overlever det almindelige, men ikke alt: in-app browser
+  (Instagram/Messenger), privat browsing, manuel rydning, enheds-skift (jf. ADR-3).
+  Krydsene kan ikke genskabes, hvis de forsvinder midt i spillet.
+- **Valg:** Arrangøren printer **15–20 almindelige bankoplader** og lægger dem klar.
+  Forsvinder en deltagers plade → giv en papirplade, spillet kører videre.
+- **Hvorfor ikke mere app:** En billig papir-faldskærm dækker de sjældne fejl bedre
+  end en mere avanceret (og skrøbeligere) app ville. 15–20 er stadig milevidt fra de
+  1000, man ellers skulle printe.
+- **Konsekvens:** Rolig kommunikation til deltagerne ("mist din plade → kom og få papir")
+  i stedet for at skulle skræmme dem til at gøre alt rigtigt. Detaljer i
+  `TIL-ARRANGOEREN.md`.
 
 ### ADR-8 — Hosting: Cloudflare Pages via GitHub
 - **Status:** Adopted
@@ -206,7 +219,11 @@ Faldgruber at undgå:
 - [ ] Ingen destruktive knapper i deltagernes UI.
 - [ ] `?fejlfinding` viser en "Ny plade"-knap; uden parameteren findes den ikke.
 - [ ] UI vises i landskab i **både** portræt (CSS-roteret 90°) og landskab; testet på iOS + Android.
-- [ ] Ser ud som Maskinen (orange `#d6833a`, mørk, monospace overskrift).
+- [ ] Ser ud som Maskinen (orange `#ff6b1a`, mørk, monospace overskrift).
+- [ ] Panelet viser serienummer `MSKN-<hash>` = deterministisk FNV-1a af pladens tal (ADR-11).
+- [ ] CRT viser tælling som `00/15`; batteri = 15 chunky segmenter, grøn→amber→rød (ADR-13).
+- [ ] Fuld række/plade → lokal fest ~20s: vinder-type (`1 RÆKKE`/`2 RÆKKER`/`FULD PLADE`),
+      confetti, disco-glød, techno-stinger (Web Audio, start på tryk), retur-bjælke (ADR-12).
 - [ ] **Self-check:** `index.html?test` genererer 5000 plader og logger 0 regelbrud i konsollen.
 - [ ] Deployet på Cloudflare Pages, delbart link virker på en telefon.
 
