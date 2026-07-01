@@ -21,10 +21,14 @@
     background:radial-gradient(120% 90% at 50% -20%,#43301d 0%,var(--bg) 55%);
     padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
   }
-  /* Natural landscape: short viewport → cap panel by HEIGHT so chrome never hides
-     under the browser address bar (panel ≈ 2.05:1; 1.95× leaves cushion). */
+  /* Natural landscape: fill the wide screen. Panel takes the full viewport height
+     (never under the address bar), grid flexes to fill, cells drop the square lock
+     so numbers grow big instead of leaving black side-bars. Capped for desktop. */
   @media (orientation:landscape){
-    .stage .bezel{ max-width:min(820px, calc((100dvh - 24px) * 1.95)); }
+    .stage .bezel{ width:100%; max-width:min(1100px, 96vw); height:min(calc(100dvh - 16px), 560px); }
+    .panel{ display:flex; flex-direction:column; height:100%; }
+    .grid{ flex:1 1 auto; min-height:0; }
+    .cell{ aspect-ratio:auto; }
   }
   @media (orientation:portrait){
     .stage{
