@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Banko</title>
+<style>
+  :root {
+    --orange: #d6833a;
+    --bg: #171310;
+    --panel: #211b16;
+    --card-bg: #ffffff;
+    --line: #d6833a;
+    --mark: #d6833a;
+    --text: #171310;
+    --blank: #ece7e1;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    background-image: radial-gradient(circle at 50% -10%, #2c231b 0%, var(--bg) 55%);
+    color: #f5efe8;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    gap: 14px;
+  }
+  header { text-align: center; margin-top: 4px; }
+  h1 {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 1.5rem;
+    margin: 0;
+    letter-spacing: 0.35em;
+    color: var(--orange);
+    text-transform: uppercase;
+  }
+  .sub {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    opacity: 0.6;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .plade {
+    width: 100%;
+    max-width: 560px;
+    background: var(--card-bg);
+    border: 4px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+  .cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 5.5vw, 2rem);
+    font-weight: 700;
+    color: var(--text);
+    border-right: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    user-select: none;
+    position: relative;
+    background: var(--card-bg);
+  }
+  .cell.blank { background: var(--blank); }
+  .cell.num { cursor: pointer; }
+  .cell.marked span {
+    color: #fff;
+  }
+  .cell.marked::after {
+    content: "";
+    position: absolute;
+    width: 82%;
+    aspect-ratio: 1;
+    background: var(--mark);
+    border-radius: 50%;
+    z-index: 0;
+    box-shadow: 0 0 0 2px rgba(23,19,16,0.15);
+  }
+  .cell span { position: relative; z-index: 1; }
+  .controls { display: flex; gap: 12px; }
+  button {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 999px;
+    background: var(--orange);
+    color: #171310;
+    cursor: pointer;
+  }
+  button.ghost { background: transparent; color: var(--orange); box-shadow: inset 0 0 0 2px var(--orange); }
+  button:active { transform: scale(0.96); }
+  .hint { font-size: 0.85rem; opacity: 0.7; text-align: center; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Banko</h1>
+    <div class="sub">Maskinen · Landslejr 2026</div>
+  </header>
+  <div id="plade" class="plade"></div>
+  <div class="controls">
+    <button id="ny">Ny plade</button>
+    <button id="ryd" class="ghost">Ryd kryds</button>
+  </div>
+  <p class="hint">Tryk på et tal for at markere. Din plade gemmes automatisk.</p>
+
+<script>
+const COLS = 9, ROWS = 3, PER_CARD = 15, PER_ROW = 5;
+const STORE = "banko-plade-v1";
+
+// Column number range: col0 = 1..9, col1 = 10..19, ... col7 = 70..79, col8 = 80..90
+function colRange(j) {
+  const lo = j === 0 ? 1 : j * 10;
+  const hi = j === 8 ? 90 : j * 10 + 9;
+  return [lo, hi];
+}
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const k = Math.floor(Math.random() * (i + 1));
+    [a[i], a[k]] = [a[k], a[i]];
+  }
+  return a;
+}
+
+// How many numbers per column: each col 1..3, total 15.
+function columnCounts() {
+  const c = Array(COLS).fill(1);      // every column gets at least 1
+  let extra = PER_CARD - COLS;        // 6 left to spread, cap at 3 per col
+  while (extra > 0) {
+    const j = Math.floor(Math.random() * COLS);
+    if (c[j] < 3) { c[j]++; extra--; }
+  }
+  return c;
+}
+
+// Place each column's cells into distinct rows so every row ends with exactly 5.
+// Rejection-sample: simple and always converges fast.
+function rowLayout(counts) {
+  for (let attempt = 0; attempt < 500; attempt++) {
+    const cap = Array(ROWS).fill(PER_ROW);   // remaining slots per row
+    const filled = Array.from({ length: COLS }, () => [false, false, false]);
+    let ok = true;
+    // Place count-3 columns first (they force all rows), then the rest shuffled.
+    const order = shuffle([...Array(COLS).keys()]).sort((a, b) => counts[b] - counts[a]);
+    for (const j of order) {
+      const rows = shuffle([0, 1, 2]).filter(r => cap[r] > 0).slice(0, counts[j]);
+      if (rows.length < counts[j]) { ok = false; break; }
+      for (const r of rows) { filled[j][r] = true; cap[r]--; }
+    }
+    if (ok && cap.every(x => x === 0)) return filled;
+  }
+  throw new Error("layout failed");   // ponytail: 500 tries never fails in practice
+}
+
+function generate() {
+  const counts = columnCounts();
+  const filled = rowLayout(counts);
+  // grid[row][col] = number or null
+  const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+  for (let j = 0; j < COLS; j++) {
+    const [lo, hi] = colRange(j);
+    const pool = [];
+    for (let n = lo; n <= hi; n++) pool.push(n);
+    const picks = shuffle(pool).slice(0, counts[j]).sort((a, b) => a - b);
+    let p = 0;
+    for (let r = 0; r < ROWS; r++) {
+      if (filled[j][r]) grid[r][j] = picks[p++];
+    }
+  }
+  return grid;
+}
+
+let card, marks;
+
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE));
+    if (s && s.card) { card = s.card; marks = s.marks || {}; return; }
+  } catch (e) {}
+  card = generate();
+  marks = {};
+  save();
+}
+
+function save() {
+  localStorage.setItem(STORE, JSON.stringify({ card, marks }));
+}
+
+function render() {
+  const el = document.getElementById("plade");
+  el.innerHTML = "";
+  for (let r = 0; r < ROWS; r++) {
+    for (let j = 0; j < COLS; j++) {
+      const n = card[r][j];
+      const d = document.createElement("div");
+      if (n == null) {
+        d.className = "cell blank";
+      } else {
+        d.className = "cell num" + (marks[n] ? " marked" : "");
+        d.innerHTML = `<span>${n}</span>`;
+        d.addEventListener("click", () => {
+          marks[n] = !marks[n];
+          if (!marks[n]) delete marks[n];
+          save();
+          d.classList.toggle("marked");
+        });
+      }
+      el.appendChild(d);
+    }
+  }
+}
+
+document.getElementById("ny").addEventListener("click", () => {
+  if (!confirm("Ny plade? Dine kryds forsvinder.")) return;
+  card = generate();
+  marks = {};
+  save();
+  render();
+});
+
+document.getElementById("ryd").addEventListener("click", () => {
+  marks = {};
+  save();
+  render();
+});
+
+load();
+render();
+
+// --- self-check: validate 5000 generated cards against banko rules ---
+// Runs only with ?test in the URL. Open index.html?test and check the console.
+if (location.search.includes("test")) {
+  let fails = 0;
+  for (let i = 0; i < 5000; i++) {
+    const g = generate();
+    const flat = g.flat().filter(x => x != null);
+    if (flat.length !== 15) fails++;                                  // 15 numbers
+    if (new Set(flat).size !== 15) fails++;                           // all distinct
+    for (let r = 0; r < ROWS; r++)
+      if (g[r].filter(x => x != null).length !== 5) fails++;          // 5 per row
+    for (let j = 0; j < COLS; j++) {
+      const [lo, hi] = colRange(j);
+      const col = g.map(row => row[j]).filter(x => x != null);
+      if (col.length < 1 || col.length > 3) fails++;                  // 1..3 per col
+      if (col.some(n => n < lo || n > hi)) fails++;                   // in range
+      for (let k = 1; k < col.length; k++)
+        if (col[k] <= col[k - 1]) fails++;                            // sorted top-down
+    }
+  }
+  console.log(fails === 0 ? "SELF-CHECK OK: 5000 cards valid" : `SELF-CHECK FAILED: ${fails} violations`);
+}
+</script>
+</body>
+</html>
