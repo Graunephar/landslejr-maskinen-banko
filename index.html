@@ -177,7 +177,9 @@
   .statusbar{ display:flex; align-items:center; gap:12px; margin-top:12px; padding:0 50px; height:26px }
   .pwr{ width:18px; height:18px; border-radius:50%; background:var(--btnglow); box-shadow:0 0 12px 3px var(--btnglow); animation:breathe 2.4s ease-in-out infinite }
   @keyframes breathe{ 0%,100%{ opacity:.55 } 50%{ opacity:1 } }
-  .readout{ margin-left:auto; color:var(--sub); font-size:10px; letter-spacing:.2em; cursor:pointer }
+  .rivets{ margin-left:24px; display:flex; align-items:center; gap:10px; flex:none; }
+  .rivets i{ width:9px; height:9px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#6b5738,#241a10 78%); box-shadow:inset 0 0 1px #000,0 1px 0 rgba(255,255,255,.08); cursor:pointer; }
+  .readout{ margin-left:auto; color:var(--sub); font-size:10px; letter-spacing:.2em; cursor:pointer; white-space:nowrap }
   .readout.tease{ animation:stamp .4s ease; color:var(--hot); text-shadow:0 0 8px var(--glow) }
   .party .pwr{ background:var(--party2); box-shadow:0 0 10px 3px var(--party) }
 
@@ -229,6 +231,12 @@
   /* Combo 7 — bass-drop panel throb */
   .panel.throb{ animation:throb .5s ease-in-out 4; }
   @keyframes throb{ 0%,100%{ transform:scale(1); box-shadow:inset 0 0 46px rgba(0,0,0,.6) } 50%{ transform:scale(1.035); box-shadow:inset 0 0 60px rgba(255,60,20,.4),0 0 30px rgba(255,80,30,.5) } }
+  /* Combo 8 — power-up gold glow flash */
+  .panel.flashup{ animation:flashup .5s ease; }
+  @keyframes flashup{ 0%,100%{ box-shadow:inset 0 0 46px rgba(0,0,0,.6) } 50%{ box-shadow:inset 0 0 40px rgba(255,220,120,.5),0 0 28px rgba(255,210,90,.75) } }
+  /* Combo 9 — power-down brief dim */
+  .panel.dim{ animation:pdim .85s ease; }
+  @keyframes pdim{ 0%,100%{ filter:none } 45%{ filter:brightness(.5) saturate(.6) } }
   /* C — knob rev spin */
   .knob{ cursor:pointer; }
   .knob.rev{ animation:knobspin .6s cubic-bezier(.2,.8,.3,1); }
@@ -346,7 +354,7 @@
     <div class="grid" id="grid"></div>
 
     <div class="statusbar">
-      <span class="pwr"></span><span class="readout">TRYK FOR AT TÆNDE LYSET</span>
+      <span class="pwr"></span><span class="readout">TRYK FOR AT TÆNDE LYSET</span><span class="rivets" id="rivets"><i></i><i></i><i></i><i></i><i></i><i></i></span>
     </div>
 
     <div class="dbg" id="dbg" hidden>
@@ -699,6 +707,8 @@
     { seq:["k1","k3","tgl"],           fn:bassDrop },     // → bass drop
     { seq:["k1","k1","k1"],            fn:pulseWave },     // → bass shockwave rings
     { seq:["k3","k3","k3"],            fn:matrixRain },    // → green digital rain
+    { seq:["k1","tgl"],                fn:powerUp },       // → power-up chime
+    { seq:["k3","tgl"],                fn:powerDown },     // → sad-trombone wah-wah
   ];
   let kbuf=[], kbufT=null;
   function endsWith(buf,seq){ if(buf.length<seq.length) return false; for(let i=0;i<seq.length;i++){ if(buf[buf.length-seq.length+i]!==seq[i]) return false; } return true; }
@@ -777,6 +787,20 @@
     for(let i=0;i<3;i++){ const tt=dt+0.5+i*0.28,oo=ctx.createOscillator(),gg=ctx.createGain(); oo.type="sine"; oo.frequency.setValueAtTime(90,tt); oo.frequency.exponentialRampToValueAtTime(40,tt+0.18);
       gg.gain.setValueAtTime(0.0001,tt); gg.gain.exponentialRampToValueAtTime(0.6,tt+0.02); gg.gain.exponentialRampToValueAtTime(0.001,tt+0.22); oo.connect(gg).connect(ctx.destination); oo.start(tt); oo.stop(tt+0.24); }
     setTimeout(()=>{ try{ctx.close();}catch(e){} },2500); }
+  // Party combo 8 — power-up chime + gold glow flash (k1,tgl)
+  function powerUp(){ panel.classList.remove("flashup"); void panel.offsetWidth; panel.classList.add("flashup"); coinSound(); setTimeout(()=>panel.classList.remove("flashup"),600); }
+  function coinSound(){ const ctx=AC(); if(!ctx) return; const notes=[[784,0,0.09],[1047,0.08,0.09],[1319,0.16,0.35]];
+    notes.forEach(([f,at,dur])=>{ const t=ctx.currentTime+at,o=ctx.createOscillator(),g=ctx.createGain(); o.type="square"; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.01); g.gain.exponentialRampToValueAtTime(0.001,t+dur); o.connect(g).connect(ctx.destination); o.start(t); o.stop(t+dur+0.02); });
+    setTimeout(()=>{ try{ctx.close();}catch(e){} },700); }
+  // Party combo 9 — sad-trombone wah-wah + brief dim (k3,tgl)
+  function powerDown(){ panel.classList.remove("dim"); void panel.offsetWidth; panel.classList.add("dim"); trombone(); setTimeout(()=>panel.classList.remove("dim"),900); }
+  function trombone(){ const ctx=AC(); if(!ctx) return; const notes=[[311,0,0.24],[277,0.26,0.24],[233,0.52,0.55]];
+    notes.forEach(([f,at,dur],idx)=>{ const t=ctx.currentTime+at,o=ctx.createOscillator(),g=ctx.createGain(),flt=ctx.createBiquadFilter();
+      o.type="sawtooth"; o.frequency.setValueAtTime(f,t); if(idx===2) o.frequency.linearRampToValueAtTime(f*0.84,t+dur);   // final bend down (waaah)
+      flt.type="lowpass"; flt.frequency.value=1100; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.26,t+0.03); g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      o.connect(flt).connect(g).connect(ctx.destination); o.start(t); o.stop(t+dur+0.05); });
+    setTimeout(()=>{ try{ctx.close();}catch(e){} },1300); }
 
   // C — turning a knob revs the machine (also feeds the konami buffer)
   function revKnob(knob,id){
@@ -911,15 +935,31 @@
     blip(620);
     setTimeout(()=>{ readoutEl.textContent="TRYK FOR AT TÆNDE LYSET"; readoutEl.classList.remove("tease"); roBusy=false; },2400);
   });
-  // J — tap the battery → seniorkursus-besked (tilted text + warm breathing aura behind it)
-  document.querySelector(".batwrap").addEventListener("click",()=>{
+  // J — seniorkursus-beskeder (tilted text + warm breathing aura). 5 variations across 5 spots.
+  function seniorMsg(word){
     if(msgBusy||magiBusy) return; msgBusy=true;
     aura.classList.add("show");
-    secret.textContent="Tag på seniorkursus — det er godt for din sjæl ✦";
+    secret.textContent="Tag på seniorkursus: det er godt for "+word+" ✦";
     secret.classList.remove("soul"); void secret.offsetWidth; secret.classList.add("show","soul");
     blip(500); setTimeout(()=>blip(680),130);
     setTimeout(()=>{ secret.classList.remove("show","soul"); aura.classList.remove("show"); msgBusy=false; },3600);
-  });
+  }
+  document.querySelector(".batwrap").addEventListener("click",()=>seniorMsg("din sjæl"));   // battery (tap)
+  // 5 more: long-press on chrome controls (not the screws). Suppress the follow-up click so their tap-egg doesn't also fire.
+  let seniorHoldFired=false;
+  document.addEventListener("click",e=>{ if(seniorHoldFired){ seniorHoldFired=false; e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+  function addSeniorHold(el,word){ let t=null;
+    el.addEventListener("pointerdown",()=>{ t=setTimeout(()=>{ seniorHoldFired=true; seniorMsg(word); setTimeout(()=>{ seniorHoldFired=false; },500); },700); });
+    const c=()=>clearTimeout(t); el.addEventListener("pointerup",c); el.addEventListener("pointerleave",c); el.addEventListener("pointercancel",c);
+  }
+  addSeniorHold(k1,"dit tredje øjenbryn");
+  addSeniorHold(k3,"dit hår");
+  addSeniorHold(tgl,"verden");
+  addSeniorHold(crtBox,"humøret");
+  addSeniorHold(serialEl,"din far");
+  // 6 more via simple click on the little rivets in the bottom-right (increasing silliness left→right)
+  const RIVET_WORDS=["din instruktør","din krop","din hjerne","din mor","dit humør","dine tæer"];
+  [...document.querySelectorAll("#rivets i")].forEach((r,i)=> r.addEventListener("click",()=>seniorMsg(RIVET_WORDS[i])));
 
   // ---------- Easter egg: tap MASKINEN 3× fast → machine "thinks, then answers". ----------
   const MAGI=["ANALYSERER...","MAGI: 51%","TEKNOLOGI: 49%","KAN IKKE SKELNE"];
