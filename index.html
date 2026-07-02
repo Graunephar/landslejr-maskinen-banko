@@ -11,7 +11,7 @@
     --orange:#ff6b1a; --orange-deep:#e0490f; --glow:#ff922e; --hot:#ffb257;
     --teal:#3fe6cc; --party:#c94fd6; --party2:#42d6c0;
     --bg:#140f0b; --panel:#1e1712; --plate:#efe8dd; --plate-blank:#cdbfae; --ink:#181310;
-    --bezel1:#d8c9a6; --bezel2:#b39a68; --glowbg:#43301d; --sub:#a98d68;
+    --bezel1:#d8c9a6; --bezel2:#b39a68; --glowbg:#43301d; --sub:#a98d68; --btnglow:#ff922e;
     font-family:ui-monospace,"SF Mono",Menlo,monospace;
   }
 
@@ -108,10 +108,10 @@
   @keyframes scan{ 0%{ top:-14px } 100%{ top:52px } }
   .knobs{ display:flex; align-items:center; gap:12px; flex:none }
   .knob{ width:32px; height:32px; border-radius:50%; position:relative; background:radial-gradient(circle at 38% 30%,#4a3a2a,#181109 78%); border:2px solid #4a3a2a }
-  .knob::after{ content:""; position:absolute; left:50%; top:4px; width:4px; height:12px; background:var(--hot); border-radius:2px; box-shadow:0 0 6px var(--glow); transform-origin:bottom }
+  .knob::after{ content:""; position:absolute; left:50%; top:4px; width:4px; height:12px; background:var(--hot); border-radius:2px; box-shadow:0 0 6px var(--btnglow); transform-origin:bottom }
   .k1::after{ transform:translateX(-50%) rotate(-40deg) } .k3::after{ transform:translateX(-50%) rotate(40deg) }
   .tgl{ width:20px; height:32px; border-radius:3px; background:#241a12; border:2px solid #4a3a2a; position:relative }
-  .tgl.on::after{ content:""; position:absolute; left:3px; right:3px; top:3px; height:12px; border-radius:2px; background:var(--hot); box-shadow:0 0 6px var(--glow) }
+  .tgl.on::after{ content:""; position:absolute; left:3px; right:3px; top:3px; height:12px; border-radius:2px; background:var(--hot); box-shadow:0 0 6px var(--btnglow) }
   .tgl.flip{ animation:tglflip .22s ease }
   @keyframes tglflip{ 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.18) } }
   .redbtn{ width:30px; height:30px; border-radius:50%; background:radial-gradient(circle at 38% 32%,#ff6a5a,#a01508 76%); border:3px solid #2a0d07; box-shadow:0 0 12px rgba(220,40,20,.5) }
@@ -168,14 +168,14 @@
 
   .grid{ display:grid; grid-template-columns:repeat(9,1fr); grid-template-rows:repeat(3,1fr); gap:5px; background:#100b07; padding:6px; border-radius:8px; border:1px solid #4a3a2b; container-type:inline-size; }
   .cell{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:clamp(15px,6.4cqw,38px); font-weight:800; border-radius:6px; position:relative; }
-  .cell.num{ background:var(--plate); color:var(--ink); cursor:pointer; box-shadow:inset 0 -3px 0 rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.6); transition:transform .05s,box-shadow .1s,background .45s,color .45s; }
+  .cell.num{ background:var(--plate); color:var(--ink); cursor:pointer; box-shadow:inset 0 -3px 0 rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.6); transition:transform .05s,box-shadow .1s,background .12s,color .12s; }
   .cell.num:active{ transform:translateY(2px); box-shadow:inset 0 -1px 0 rgba(0,0,0,.2) }
   .cell.blank{ background:var(--plate-blank); opacity:.26 }
-  .cell.lit{ color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.55); background:radial-gradient(circle at 50% 42%,var(--hot) 0%,var(--orange) 58%,var(--orange-deep) 100%); box-shadow:0 0 0 2px #8a2f0c,0 0 22px 4px rgba(255,107,26,.8),inset 0 2px 7px rgba(255,220,180,.6); animation:pulse 2.1s ease-in-out infinite; }
-  @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 2px #8a2f0c,0 0 16px 3px rgba(255,107,26,.6),inset 0 2px 7px rgba(255,220,180,.6) } 50%{ box-shadow:0 0 0 2px #8a2f0c,0 0 28px 7px rgba(255,146,46,.9),inset 0 2px 7px rgba(255,220,180,.6) } }
+  .cell.lit{ color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.55); background:radial-gradient(circle at 50% 42%,var(--hot) 0%,var(--orange) 58%,var(--orange-deep) 100%); box-shadow:0 0 0 2px color-mix(in srgb,var(--btnglow) 50%,#000),0 0 22px 4px color-mix(in srgb,var(--btnglow) 56%,transparent),inset 0 2px 7px rgba(255,220,180,.6); animation:pulse 2.1s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ box-shadow:0 0 0 2px color-mix(in srgb,var(--btnglow) 50%,#000),0 0 16px 3px color-mix(in srgb,var(--btnglow) 42%,transparent),inset 0 2px 7px rgba(255,220,180,.6) } 50%{ box-shadow:0 0 0 2px color-mix(in srgb,var(--btnglow) 50%,#000),0 0 28px 7px color-mix(in srgb,var(--btnglow) 63%,transparent),inset 0 2px 7px rgba(255,220,180,.6) } }
 
-  .statusbar{ display:flex; align-items:center; gap:12px; margin-top:16px; padding:4px 50px 0; height:22px }
-  .pwr{ width:18px; height:18px; border-radius:50%; background:var(--glow); box-shadow:0 0 12px 3px rgba(255,146,46,.8); animation:breathe 2.4s ease-in-out infinite }
+  .statusbar{ display:flex; align-items:center; gap:12px; margin-top:12px; padding:0 50px; height:26px }
+  .pwr{ width:18px; height:18px; border-radius:50%; background:var(--btnglow); box-shadow:0 0 12px 3px var(--btnglow); animation:breathe 2.4s ease-in-out infinite }
   @keyframes breathe{ 0%,100%{ opacity:.55 } 50%{ opacity:1 } }
   .readout{ margin-left:auto; color:var(--sub); font-size:10px; letter-spacing:.2em; cursor:pointer }
   .readout.tease{ animation:stamp .4s ease; color:var(--hot); text-shadow:0 0 8px var(--glow) }
@@ -213,6 +213,22 @@
   .strobe{ position:absolute; inset:0; z-index:5; opacity:0; pointer-events:none; mix-blend-mode:screen; }
   .strobe.on{ animation:strobe .11s steps(1) infinite; }
   @keyframes strobe{ 0%{background:#fff;opacity:.85} 25%{background:var(--party);opacity:.7} 50%{background:#000;opacity:.25} 75%{background:var(--teal);opacity:.7} 100%{background:var(--orange);opacity:.8} }
+  /* Combo 1 — white strobe rave */
+  .strobe.white{ animation:wstrobe .09s steps(1) infinite; }
+  @keyframes wstrobe{ 0%{background:#fff;opacity:.92} 50%{background:#000;opacity:.12} 100%{background:#fff;opacity:.92} }
+  /* Combo 2 — expanding shockwave rings */
+  .pulsering{ position:absolute; left:50%; top:50%; width:30px; height:30px; margin:-15px 0 0 -15px; border-radius:50%; border:4px solid var(--glow); z-index:7; pointer-events:none; box-shadow:0 0 16px var(--glow); animation:pulsering 1s ease-out forwards; }
+  @keyframes pulsering{ 0%{ transform:scale(.2); opacity:.9 } 100%{ transform:scale(9); opacity:0 } }
+  /* Combo 4 — police siren red/blue flood */
+  .siren{ position:absolute; inset:0; z-index:5; opacity:0; pointer-events:none; mix-blend-mode:screen; }
+  .siren.on{ animation:sirenflood .5s steps(1) infinite; }
+  @keyframes sirenflood{ 0%{ background:radial-gradient(circle at 22% 50%, rgba(255,40,40,.75), transparent 55%); opacity:1 } 50%{ background:radial-gradient(circle at 78% 50%, rgba(50,90,255,.75), transparent 55%); opacity:1 } 100%{ background:radial-gradient(circle at 22% 50%, rgba(255,40,40,.75), transparent 55%); opacity:1 } }
+  /* Combo 6 — 8-bit victory colour flash */
+  .strobe.chip{ animation:chipflash .16s steps(1) infinite; }
+  @keyframes chipflash{ 0%{background:#ffde3a;opacity:.72} 33%{background:#3fe6cc;opacity:.72} 66%{background:#ff6b1a;opacity:.72} 100%{background:#c94fd6;opacity:.72} }
+  /* Combo 7 — bass-drop panel throb */
+  .panel.throb{ animation:throb .5s ease-in-out 4; }
+  @keyframes throb{ 0%,100%{ transform:scale(1); box-shadow:inset 0 0 46px rgba(0,0,0,.6) } 50%{ transform:scale(1.035); box-shadow:inset 0 0 60px rgba(255,60,20,.4),0 0 30px rgba(255,80,30,.5) } }
   /* C — knob rev spin */
   .knob{ cursor:pointer; }
   .knob.rev{ animation:knobspin .6s cubic-bezier(.2,.8,.3,1); }
@@ -225,7 +241,7 @@
     16%{ transform:rotate(180deg); animation-timing-function:ease-out }                /* then unwind slowly back */
     100%{ transform:rotate(0) }
   }
-  .screw.loosening{ animation:unscrew 2.5s linear forwards; }
+  .screw.loosening{ animation:unscrew 1.5s linear forwards; }
   @keyframes unscrew{ 0%{transform:rotate(0) scale(1)} 100%{transform:rotate(540deg) scale(.9)} }
   /* Empty screw hole left behind after a screw falls out */
   .screw.hole{ background:radial-gradient(circle at 50% 42%, #000 0%, #0b0806 72%, #241a10 100%); border-color:#0a0705;
@@ -254,10 +270,11 @@
     opacity:0; pointer-events:none; transition:opacity .3s; text-shadow:0 0 30px var(--glow); }
   .plaque.show{ opacity:1; }
   /* Hidden FDF'erfest ad (long-press red button) — slides down, machine-styled, non-blocking */
+  /* Top banner. Opaque, lighter-than-panel background so it reads as a raised banner (not just an orange ring). */
   .ad{ position:absolute; left:8px; right:8px; top:8px; z-index:8; display:flex; align-items:center; justify-content:center; gap:10px;
-    background:linear-gradient(180deg,rgba(30,23,18,.97),rgba(20,15,11,.97)); border:1px solid var(--orange); border-radius:9px;
-    padding:9px 12px; box-shadow:0 8px 22px rgba(0,0,0,.6),0 0 18px rgba(255,107,26,.4);
-    transform:translateY(-160%); opacity:0; transition:transform .42s cubic-bezier(.3,1.25,.5,1),opacity .3s; pointer-events:none; }
+    background:linear-gradient(180deg,#3a2b1c,#241a10); border:2px solid var(--orange); border-radius:10px;
+    padding:10px 14px; box-shadow:0 10px 26px rgba(0,0,0,.7),0 0 22px rgba(255,107,26,.55);
+    transform:translateY(-170%); opacity:0; pointer-events:none; transition:transform .42s cubic-bezier(.3,1.25,.5,1),opacity .3s; }
   .ad.show{ transform:translateY(0); opacity:1; pointer-events:auto; }
   .adtxt{ color:var(--plate); font-size:clamp(11px,2.5vw,15px); letter-spacing:.02em; }
   .adtxt b{ color:var(--hot); }
@@ -339,6 +356,7 @@
 
     <div class="flash" id="flash"></div>
     <div class="strobe" id="strobe"></div>
+    <div class="siren" id="siren"></div>
     <div class="beams" id="beams"></div>
     <div class="bigtext" id="bigtext"></div>
     <div class="aura" id="aura"></div>
@@ -351,9 +369,9 @@
     <canvas class="confetti" id="confetti"></canvas>
     <div class="win" id="win">
       <div class="type" id="wintype">BANKO!</div>
-      <div class="banko">TILLYKKE</div>
+      <div class="banko">TILLYKKE!!!</div>
       <div class="ret">
-        <div class="lbl">PLADEN KOMMER TILBAGE</div>
+        <div class="lbl">BARE ROLIG, DIN PLADE KOMMER TILBAGE</div>
         <div class="track"><div class="bar" id="retbar"></div></div>
       </div>
     </div>
@@ -670,17 +688,95 @@
   const fader=document.querySelector(".fader");
   fader.addEventListener("click",()=>{ fader.classList.remove("slid"); void fader.offsetWidth; fader.classList.add("slid"); showAd(); });
 
-  // B — konami on knobs+toggle → MAX disco strobe (no confetti)
-  const SEQ=["k1","k3","k1","k3","tgl"]; let kbuf=[], kbufT=null;
+  // B — knob/toggle press-patterns → different parties (all synthesized audio, no files)
+  const siren=$("#siren");
+  const PATTERNS=[   // longest first so specific combos win
+    { seq:["k1","k3","k1","k3","tgl"], fn:maxDisco },     // konami → MAX disco
+    { seq:["tgl","k1","k3","tgl"],     fn:sirenDisco },   // → police-siren red/blue
+    { seq:["tgl","k3","k1","tgl"],     fn:fireworks },    // → fireworks
+    { seq:["tgl","tgl","tgl","tgl"],   fn:raveStrobe },   // → white strobe rave
+    { seq:["k3","k1","tgl"],           fn:chipVictory },  // → 8-bit victory fanfare
+    { seq:["k1","k3","tgl"],           fn:bassDrop },     // → bass drop
+    { seq:["k1","k1","k1"],            fn:pulseWave },     // → bass shockwave rings
+    { seq:["k3","k3","k3"],            fn:matrixRain },    // → green digital rain
+  ];
+  let kbuf=[], kbufT=null;
+  function endsWith(buf,seq){ if(buf.length<seq.length) return false; for(let i=0;i<seq.length;i++){ if(buf[buf.length-seq.length+i]!==seq[i]) return false; } return true; }
   function feedKonami(id){
-    kbuf.push(id); if(kbuf.length>SEQ.length) kbuf.shift();
+    kbuf.push(id); if(kbuf.length>8) kbuf.shift();
     clearTimeout(kbufT); kbufT=setTimeout(()=>kbuf=[],1600);
-    if(kbuf.length===SEQ.length && SEQ.every((s,i)=>kbuf[i]===s)){ kbuf=[]; maxDisco(); }
+    for(const p of PATTERNS){ if(endsWith(kbuf,p.seq)){ kbuf=[]; p.fn(); return; } }
   }
   function maxDisco(){
     strobe.classList.add("on"); panel.classList.add("party"); playTechno(3); popConfetti();
     setTimeout(()=>{ strobe.classList.remove("on"); if(!partyActive) panel.classList.remove("party"); },3000);
   }
+  // Party combo 1 — white strobe rave + laser zaps (4× toggle)
+  function raveStrobe(){ strobe.classList.add("on","white"); laserZaps();
+    setTimeout(()=>{ strobe.classList.remove("on","white"); },2200); }
+  function laserZaps(){ const ctx=AC(); if(!ctx) return;
+    for(let i=0;i<7;i++){ const t=ctx.currentTime+i*0.28,o=ctx.createOscillator(),g=ctx.createGain();
+      o.type="sawtooth"; o.frequency.setValueAtTime(1900,t); o.frequency.exponentialRampToValueAtTime(180,t+0.22);
+      g.gain.setValueAtTime(0.22,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.24); o.connect(g).connect(ctx.destination); o.start(t); o.stop(t+0.26); }
+    setTimeout(()=>{ try{ctx.close();}catch(e){} },2400); }
+  // Party combo 2 — expanding shockwave rings + deep bass pulses (3× left knob)
+  function pulseWave(){ for(let i=0;i<3;i++) setTimeout(()=>{ const r=document.createElement("div"); r.className="pulsering"; panel.appendChild(r); setTimeout(()=>r.remove(),1000); }, i*260); bassPulses(); }
+  function bassPulses(){ const ctx=AC(); if(!ctx) return;
+    for(let i=0;i<4;i++){ const t=ctx.currentTime+i*0.26,o=ctx.createOscillator(),g=ctx.createGain();
+      o.type="sine"; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(45,t+0.2);
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.6,t+0.02); g.gain.exponentialRampToValueAtTime(0.001,t+0.24); o.connect(g).connect(ctx.destination); o.start(t); o.stop(t+0.26); }
+    setTimeout(()=>{ try{ctx.close();}catch(e){} },1400); }
+  // Party combo 3 — green digital rain + rising arpeggio (3× right knob)
+  let mtxAF=0, mtxCols=[];
+  function matrixRain(){ cv.width=panel.clientWidth; cv.height=panel.clientHeight;
+    const cols=Math.max(1,Math.floor(cv.width/12)); mtxCols=Array.from({length:cols},()=>rnd(cv.height));
+    cancelAnimationFrame(mtxAF); (function step(){ cx.fillStyle="rgba(8,14,7,.28)"; cx.fillRect(0,0,cv.width,cv.height);
+      cx.fillStyle="#46ff7a"; cx.font="12px monospace";
+      mtxCols.forEach((y,i)=>{ cx.fillText(String.fromCharCode(0x30+rnd(74)), i*12, y); mtxCols[i]= y>cv.height ? 0 : y+12; });
+      mtxAF=requestAnimationFrame(step); })();
+    arpUp(); setTimeout(()=>{ cancelAnimationFrame(mtxAF); cx.clearRect(0,0,cv.width,cv.height); },2600); }
+  function arpUp(){ const ctx=AC(); if(!ctx) return; const sc=[262,330,392,523,659,784,1047];
+    for(let i=0;i<15;i++){ const t=ctx.currentTime+i*0.11,f=sc[i%sc.length]*(i>7?2:1),o=ctx.createOscillator(),g=ctx.createGain();
+      o.type="square"; o.frequency.value=f; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.18,t+0.006); g.gain.exponentialRampToValueAtTime(0.001,t+0.09); o.connect(g).connect(ctx.destination); o.start(t); o.stop(t+0.1); }
+    setTimeout(()=>{ try{ctx.close();}catch(e){} },2200); }
+  // Party combo 4 — police-siren red/blue flood + wailing siren (tgl,k1,k3,tgl)
+  function sirenDisco(){ siren.classList.add("on"); panel.classList.add("party"); sirenSound();
+    setTimeout(()=>{ siren.classList.remove("on"); if(!partyActive) panel.classList.remove("party"); },2600); }
+  function sirenSound(){ const ctx=AC(); if(!ctx) return; const o=ctx.createOscillator(),g=ctx.createGain(),lfo=ctx.createOscillator(),lg=ctx.createGain();
+    o.type="sawtooth"; o.frequency.value=620; lfo.type="sine"; lfo.frequency.value=2.2; lg.gain.value=320; lfo.connect(lg); lg.connect(o.frequency);
+    g.gain.value=0.18; o.connect(g).connect(ctx.destination); o.start(); lfo.start();
+    setTimeout(()=>{ try{ g.gain.setValueAtTime(0.0001,ctx.currentTime); o.stop(); lfo.stop(); ctx.close(); }catch(e){} },2500); }
+  // Party combo 5 — fireworks: spark bursts + whistle-and-pop (tgl,k3,k1,tgl)
+  function sparkAt(px,py){ for(let i=0;i<18;i++){ const e=document.createElement("div"); e.className="ember"; e.style.left=px+"px"; e.style.top=py+"px";
+    const ang=Math.PI*2*i/18 + rnd(100)/100, dist=25+rnd(65); e.style.setProperty("--dx",(Math.cos(ang)*dist).toFixed(0)+"px"); e.style.setProperty("--dy",(Math.sin(ang)*dist).toFixed(0)+"px");
+    panel.appendChild(e); setTimeout(()=>e.remove(),950); } }
+  function fireworks(){ const W=panel.clientWidth,H=panel.clientHeight;
+    for(let i=0;i<5;i++) setTimeout(()=>sparkAt(W*(0.18+rnd(64)/100), H*(0.14+rnd(52)/100)), i*320); fireworkSound(); }
+  function fireworkSound(){ const ctx=AC(); if(!ctx) return;
+    for(let i=0;i<5;i++){ const t=ctx.currentTime+i*0.32;
+      const o=ctx.createOscillator(),g=ctx.createGain(); o.type="sine"; o.frequency.setValueAtTime(400,t); o.frequency.exponentialRampToValueAtTime(1500,t+0.18);
+      g.gain.setValueAtTime(0.12,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.2); o.connect(g).connect(ctx.destination); o.start(t); o.stop(t+0.22);
+      const nb=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.15),ctx.sampleRate),nd=nb.getChannelData(0); for(let j=0;j<nd.length;j++)nd[j]=Math.random()*2-1;
+      const s=ctx.createBufferSource(); s.buffer=nb; const ng=ctx.createGain(); const pt=t+0.2; ng.gain.setValueAtTime(0.5,pt); ng.gain.exponentialRampToValueAtTime(0.001,pt+0.13); s.connect(ng).connect(ctx.destination); s.start(pt); s.stop(pt+0.15); }
+    setTimeout(()=>{ try{ctx.close();}catch(e){} },2200); }
+  // Party combo 6 — 8-bit victory fanfare + retro colour flash (k3,k1,tgl)
+  function chipVictory(){ strobe.classList.add("on","chip"); chipTune(); setTimeout(()=>strobe.classList.remove("on","chip"),2000); }
+  function chipTune(){ const ctx=AC(); if(!ctx) return; const notes=[[392,0],[523,0.12],[659,0.24],[784,0.36],[659,0.5],[784,0.62],[1047,0.78]];
+    notes.forEach(([f,at])=>{ const t=ctx.currentTime+at,o=ctx.createOscillator(),g=ctx.createGain(),last=at>0.7; o.type="square"; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.01); g.gain.exponentialRampToValueAtTime(0.001,t+(last?0.5:0.13)); o.connect(g).connect(ctx.destination); o.start(t); o.stop(t+(last?0.55:0.14)); });
+    setTimeout(()=>{ try{ctx.close();}catch(e){} },1600); }
+  // Party combo 7 — bass drop: riser → deep sweep + sub thumps, panel throbs (k1,k3,tgl)
+  function bassDrop(){ panel.classList.remove("throb"); void panel.offsetWidth; panel.classList.add("throb"); bassDropSound();
+    setTimeout(()=>panel.classList.remove("throb"),2200); }
+  function bassDropSound(){ const ctx=AC(); if(!ctx) return; const t0=ctx.currentTime;
+    const nb=ctx.createBuffer(1,Math.floor(ctx.sampleRate),ctx.sampleRate),nd=nb.getChannelData(0); for(let j=0;j<nd.length;j++)nd[j]=Math.random()*2-1;
+    const s=ctx.createBufferSource(); s.buffer=nb; const f=ctx.createBiquadFilter(); f.type="bandpass"; f.frequency.setValueAtTime(300,t0); f.frequency.exponentialRampToValueAtTime(6000,t0+0.8); f.Q.value=2;
+    const rg=ctx.createGain(); rg.gain.setValueAtTime(0.14,t0); rg.gain.linearRampToValueAtTime(0.4,t0+0.8); rg.gain.exponentialRampToValueAtTime(0.001,t0+0.95); s.connect(f).connect(rg).connect(ctx.destination); s.start(t0); s.stop(t0+1);
+    const dt=t0+0.85,o=ctx.createOscillator(),g=ctx.createGain(); o.type="sine"; o.frequency.setValueAtTime(200,dt); o.frequency.exponentialRampToValueAtTime(35,dt+0.5);
+    g.gain.setValueAtTime(0.0001,dt); g.gain.exponentialRampToValueAtTime(0.8,dt+0.02); g.gain.exponentialRampToValueAtTime(0.001,dt+0.7); o.connect(g).connect(ctx.destination); o.start(dt); o.stop(dt+0.75);
+    for(let i=0;i<3;i++){ const tt=dt+0.5+i*0.28,oo=ctx.createOscillator(),gg=ctx.createGain(); oo.type="sine"; oo.frequency.setValueAtTime(90,tt); oo.frequency.exponentialRampToValueAtTime(40,tt+0.18);
+      gg.gain.setValueAtTime(0.0001,tt); gg.gain.exponentialRampToValueAtTime(0.6,tt+0.02); gg.gain.exponentialRampToValueAtTime(0.001,tt+0.22); oo.connect(gg).connect(ctx.destination); oo.start(tt); oo.stop(tt+0.24); }
+    setTimeout(()=>{ try{ctx.close();}catch(e){} },2500); }
 
   // C — turning a knob revs the machine (also feeds the konami buffer)
   function revKnob(knob,id){
@@ -699,7 +795,7 @@
   // D — hold a screw 5s → it unscrews and falls. All 4 out → engine-room finale, then they screw back in.
   const screws=[...document.querySelectorAll(".screw")]; let screwsOut=0; const holds=new Map();
   screws.forEach(sc=>{
-    const start=()=>{ if(sc.dataset.out) return; sc.classList.add("loosening"); holds.set(sc,setTimeout(()=>dropScrew(sc),2500)); };
+    const start=()=>{ if(sc.dataset.out) return; sc.classList.add("loosening"); holds.set(sc,setTimeout(()=>dropScrew(sc),1500)); };
     const cancel=()=>{ if(sc.dataset.out) return; sc.classList.remove("loosening"); clearTimeout(holds.get(sc)); };
     sc.addEventListener("pointerdown",start);
     sc.addEventListener("pointerup",cancel);
@@ -749,15 +845,15 @@
   }
 
   // F — power-lamp 5× → recolor the WHOLE machine (panel, plates, bezel, readouts, glow). Session only.
-  const TKEYS=["--orange","--orange-deep","--glow","--hot","--teal","--party","--party2","--bg","--panel","--plate","--plate-blank","--ink","--bezel1","--bezel2","--glowbg","--sub"];
+  const TKEYS=["--orange","--orange-deep","--glow","--hot","--teal","--party","--party2","--bg","--panel","--plate","--plate-blank","--ink","--bezel1","--bezel2","--glowbg","--sub","--btnglow"];
   const THEMES=[
     ["MASKINEN", null],   // default warm orange
-    ["IS", {"--orange":"#41b6ff","--orange-deep":"#0a63c8","--glow":"#7fd0ff","--hot":"#b4e4ff","--teal":"#8fefff","--party":"#5fa8ff","--party2":"#8fefff","--bg":"#0a1420","--panel":"#122436","--plate":"#e8f2fb","--plate-blank":"#b9cfe0","--ink":"#0e1c2b","--bezel1":"#c3d4e6","--bezel2":"#8aa6c4","--glowbg":"#1d3550","--sub":"#7d9dbd"}],
+    ["IS", {"--orange":"#41b6ff","--orange-deep":"#0a63c8","--glow":"#7fd0ff","--hot":"#b4e4ff","--teal":"#8fefff","--party":"#5fa8ff","--party2":"#8fefff","--bg":"#0a1420","--panel":"#122436","--plate":"#e8f2fb","--plate-blank":"#b9cfe0","--ink":"#0e1c2b","--bezel1":"#c3d4e6","--bezel2":"#8aa6c4","--glowbg":"#1d3550","--sub":"#7d9dbd","--btnglow":"#7fd0ff"}],
     ["TOKSISK", {"--orange":"#8dff2f","--orange-deep":"#3aa000","--glow":"#b6ff6a","--hot":"#d6ff9a","--teal":"#eaff66","--party":"#b6ff3a","--party2":"#66ffcc","--bg":"#0c1405","--panel":"#182611","--plate":"#eef7df","--plate-blank":"#c4d3ae","--ink":"#16210a","--bezel1":"#c9d6a6","--bezel2":"#96a868","--glowbg":"#2c3d12","--sub":"#9db06e"}],
-    ["NEON", {"--orange":"#ff3fb0","--orange-deep":"#c00f78","--glow":"#ff7ad0","--hot":"#ff9ade","--teal":"#3ff0ff","--party":"#c94fd6","--party2":"#3ff0ff","--bg":"#16081a","--panel":"#241030","--plate":"#fbe8f6","--plate-blank":"#d8b9d0","--ink":"#2a0a24","--bezel1":"#e0b8d8","--bezel2":"#a868a0","--glowbg":"#3a1240","--sub":"#b06ea0"}],
-    ["GULD", {"--orange":"#ffcf3f","--orange-deep":"#c78a00","--glow":"#ffe07a","--hot":"#fff0b0","--teal":"#ffd966","--party":"#ffb347","--party2":"#ffe07a","--bg":"#140f04","--panel":"#241d0c","--plate":"#f7efd8","--plate-blank":"#d3c9a6","--ink":"#211a08","--bezel1":"#e8d6a0","--bezel2":"#b8983f","--glowbg":"#3d3012","--sub":"#b0966e"}],
-    ["VAMPYR", {"--orange":"#ff3b3b","--orange-deep":"#a00808","--glow":"#ff7a5a","--hot":"#ff9a7a","--teal":"#ff5a5a","--party":"#d63f5f","--party2":"#ff5a8a","--bg":"#150606","--panel":"#280f0f","--plate":"#f2e0e0","--plate-blank":"#caa6a6","--ink":"#2a0a0a","--bezel1":"#c6a0a0","--bezel2":"#8a4a4a","--glowbg":"#3d1212","--sub":"#b06e6e"}],
-    ["UV", {"--orange":"#a24fff","--orange-deep":"#5f10c0","--glow":"#c47aff","--hot":"#d69aff","--teal":"#7affff","--party":"#c94fd6","--party2":"#7affff","--bg":"#0e0818","--panel":"#1a1030","--plate":"#ece0fb","--plate-blank":"#c2b0d8","--ink":"#1a0a2a","--bezel1":"#cdb8e0","--bezel2":"#9868a8","--glowbg":"#2c1250","--sub":"#9d6eb0"}]
+    ["NEON", {"--orange":"#ff3fb0","--orange-deep":"#c00f78","--glow":"#ff7ad0","--hot":"#ff9ade","--teal":"#3ff0ff","--party":"#c94fd6","--party2":"#3ff0ff","--bg":"#16081a","--panel":"#241030","--plate":"#fbe8f6","--plate-blank":"#d8b9d0","--ink":"#2a0a24","--bezel1":"#e0b8d8","--bezel2":"#a868a0","--glowbg":"#3a1240","--sub":"#b06ea0","--btnglow":"#ff7ad0"}],
+    ["GULD", {"--orange":"#ffcf3f","--orange-deep":"#c78a00","--glow":"#ffe07a","--hot":"#fff0b0","--teal":"#ffd966","--party":"#ffb347","--party2":"#ffe07a","--bg":"#140f04","--panel":"#241d0c","--plate":"#f7efd8","--plate-blank":"#d3c9a6","--ink":"#211a08","--bezel1":"#e8d6a0","--bezel2":"#b8983f","--glowbg":"#3d3012","--sub":"#b0966e","--btnglow":"#ffe07a"}],
+    ["VAMPYR", {"--orange":"#ff3b3b","--orange-deep":"#a00808","--glow":"#ff7a5a","--hot":"#ff9a7a","--teal":"#ff5a5a","--party":"#d63f5f","--party2":"#ff5a8a","--bg":"#150606","--panel":"#280f0f","--plate":"#f2e0e0","--plate-blank":"#caa6a6","--ink":"#2a0a0a","--bezel1":"#c6a0a0","--bezel2":"#8a4a4a","--glowbg":"#3d1212","--sub":"#b06e6e","--btnglow":"#ff7a5a"}],
+    ["UV", {"--orange":"#a24fff","--orange-deep":"#5f10c0","--glow":"#c47aff","--hot":"#d69aff","--teal":"#7affff","--party":"#c94fd6","--party2":"#7affff","--bg":"#0e0818","--panel":"#1a1030","--plate":"#ece0fb","--plate-blank":"#c2b0d8","--ink":"#1a0a2a","--bezel1":"#cdb8e0","--bezel2":"#9868a8","--glowbg":"#2c1250","--sub":"#9d6eb0","--btnglow":"#c47aff"}]
   ];
   let theme=0;
   const pwr=document.querySelector(".pwr");
@@ -773,8 +869,18 @@
   // G — tap CRT → seed/hash flickers, then reverts to the count
   const crtBox=document.querySelector(".crt"); let crtBusy=false;
   function hex4(){ const a=new Uint32Array(1); crypto.getRandomValues(a); return a[0].toString(16).toUpperCase().padStart(8,"0").slice(-4); }
+  function crtBeeps(){                              // "beep beep bop beep" retro chatter, synced to the flicker
+    const ctx=AC(); if(!ctx) return;
+    const notes=[988,988,523,880,988,660,988,784];
+    notes.forEach((f,i)=>{ const t=ctx.currentTime+i*0.09; const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type="square"; o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.008); g.gain.exponentialRampToValueAtTime(0.001,t+0.07);
+      o.connect(g).connect(ctx.destination); o.start(t); o.stop(t+0.08); });
+    setTimeout(()=>{ try{ ctx.close(); }catch(e){} }, notes.length*90+300);
+  }
   crtBox.addEventListener("click",()=>{
     if(crtBusy) return; crtBusy=true;
+    crtBeeps();
     const real=serialOf(grid).slice(-4); let n=0;
     const iv=setInterval(()=>{
       if(n<8){ crt.textContent=hex4(); n++; }
