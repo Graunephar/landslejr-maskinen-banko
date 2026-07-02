@@ -63,7 +63,7 @@
   .screw::after{ transform:translateY(-50%) rotate(125deg); }
   .s1{top:7px;left:7px}.s2{top:7px;right:7px}.s3{bottom:7px;left:7px}.s4{bottom:7px;right:7px}
 
-  .rail{ position:relative; display:flex; align-items:center; gap:12px; padding:4px 50px 8px; }
+  .rail{ position:relative; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:4px 50px 8px; }
   .lgroup, .rgroup{ display:flex; align-items:center; gap:12px; flex:none; }
   .crt{ position:relative; width:104px; height:52px; border-radius:8px; background:#04120f; flex:none; border:2px solid #3a2c1e; box-shadow:inset 0 0 14px rgba(63,230,204,.35); overflow:hidden; }
   .crt-grid{ position:absolute; inset:0; opacity:.32; background-image:linear-gradient(var(--teal) 1px,transparent 1px),linear-gradient(90deg,var(--teal) 1px,transparent 1px); background-size:12px 12px; }
@@ -80,8 +80,15 @@
   .tgl.flip{ animation:tglflip .22s ease }
   @keyframes tglflip{ 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.18) } }
   .redbtn{ width:30px; height:30px; border-radius:50%; background:radial-gradient(circle at 38% 32%,#ff6a5a,#a01508 76%); border:3px solid #2a0d07; box-shadow:0 0 12px rgba(220,40,20,.5) }
+  /* New control types (right cluster, balance the left) — distinct from knob/toggle/CRT/redbtn */
+  .fader{ position:relative; width:52px; height:30px; border-radius:4px; background:#181109; border:2px solid #4a3a2a; box-shadow:inset 0 1px 4px rgba(0,0,0,.7); flex:none; cursor:pointer }
+  .fader::before{ content:""; position:absolute; left:5px; right:5px; top:50%; height:3px; transform:translateY(-50%); background:#3a2c1e; border-radius:2px }
+  .fader::after{ content:""; position:absolute; top:3px; bottom:3px; left:58%; width:9px; border-radius:3px; background:linear-gradient(#e2d3ad,#8a7550); box-shadow:0 0 5px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.5) }
+  .fader.slid::after{ animation:faderslide .4s ease }
+  @keyframes faderslide{ 0%{ left:58% } 50%{ left:14% } 100%{ left:58% } }
 
-  .nameplate{ flex:1 1 0; min-width:0; text-align:center; line-height:1; }
+  .nameplate{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); text-align:center; line-height:1; z-index:2; pointer-events:none; }
+  .nameplate .title, .nameplate .sub{ pointer-events:auto; }
   .title{ color:var(--orange); font-weight:800; font-size:20px; letter-spacing:.26em; text-indent:.26em; text-shadow:0 0 16px rgba(255,107,26,.6); cursor:pointer; user-select:none; white-space:nowrap; }
   .title.flick{ animation:titleflick .55s steps(1); }
   @keyframes titleflick{ 0%{opacity:1} 15%{opacity:.25} 30%{opacity:1} 45%{opacity:.35} 60%{opacity:1} 75%{opacity:.5} 100%{opacity:1} }
@@ -147,7 +154,7 @@
 
   /* --- Party overlay (ADR-12): win-type + confetti + return countdown --- */
   .confetti{ position:absolute; inset:0; pointer-events:none; z-index:7; }
-  .win{ position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;
+  .win{ position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:clamp(24px,7vh,56px);
     background:rgba(20,15,11,.74); opacity:0; pointer-events:none; transition:opacity .25s; }
   .win.show{ opacity:1; pointer-events:auto; }
   .win .type{ font-size:clamp(34px,9vw,60px); font-weight:900; letter-spacing:.12em; color:#fff; text-align:center;
@@ -177,8 +184,14 @@
   @keyframes knobspin{ to{ transform:rotate(540deg) } }
   /* D — screws unscrew, fall, engine-room finale */
   .screw{ cursor:pointer; touch-action:none; transition:transform .25s,opacity .25s; }
-  .screw.loosening{ animation:unscrew 5s linear forwards; }
-  @keyframes unscrew{ 0%{transform:rotate(0) scale(1)} 100%{transform:rotate(1080deg) scale(.9)} }
+  .screw.tick{ animation:screwtick .32s ease; }
+  @keyframes screwtick{ 0%{transform:rotate(0)} 45%{transform:rotate(30deg)} 100%{transform:rotate(0)} }
+  .screw.loosening{ animation:unscrew 2.5s linear forwards; }
+  @keyframes unscrew{ 0%{transform:rotate(0) scale(1)} 100%{transform:rotate(540deg) scale(.9)} }
+  /* Empty screw hole left behind after a screw falls out */
+  .screw.hole{ background:radial-gradient(circle at 50% 42%, #000 0%, #0b0806 72%, #241a10 100%); border-color:#0a0705;
+    box-shadow:inset 0 3px 6px rgba(0,0,0,.95), inset 0 -1px 2px rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.5); }
+  .screw.hole::before, .screw.hole::after{ display:none; }
   /* Fallen screw = a fixed-position clone appended to <body> → escapes the panel clip, drops out the window */
   .screwfly{ position:fixed; width:40px; height:40px; z-index:9999; pointer-events:none; animation:flyout 1.5s cubic-bezier(.4,.15,.7,1) forwards; }
   @keyframes flyout{ 0%{ transform:translateY(0) rotate(0) } 100%{ transform:translateY(120vh) rotate(1100deg); opacity:.85 } }
@@ -257,6 +270,7 @@
         <div class="sub">BANKO · LANDSLEJR 2026</div>
       </div>
       <div class="rgroup">
+        <span class="fader"></span>
         <span class="redbtn"></span>
         <div class="serial" id="serial">MSKN-————</div>
       </div>
@@ -609,6 +623,9 @@
   redbtn.addEventListener("click",()=>{ if(redHeld){ redHeld=false; return; } overheat(); });
   $("#adclose").addEventListener("click",()=>ad.classList.remove("show"));
   $("#adlink").addEventListener("click",()=>setTimeout(()=>ad.classList.remove("show"),100));
+  // Hidden FDF'erfest spot #2: tap the fader (slides the handle) → ad
+  const fader=document.querySelector(".fader");
+  fader.addEventListener("click",()=>{ fader.classList.remove("slid"); void fader.offsetWidth; fader.classList.add("slid"); showAd(); });
 
   // B — konami on knobs+toggle → MAX disco strobe (no confetti)
   const SEQ=["k1","k3","k1","k3","tgl"]; let kbuf=[], kbufT=null;
@@ -639,12 +656,17 @@
   // D — hold a screw 5s → it unscrews and falls. All 4 out → engine-room finale, then they screw back in.
   const screws=[...document.querySelectorAll(".screw")]; let screwsOut=0; const holds=new Map();
   screws.forEach(sc=>{
-    const start=()=>{ if(sc.dataset.out) return; sc.classList.add("loosening"); holds.set(sc,setTimeout(()=>dropScrew(sc),5000)); };
+    const start=()=>{ if(sc.dataset.out) return; sc.classList.add("loosening"); holds.set(sc,setTimeout(()=>dropScrew(sc),2500)); };
     const cancel=()=>{ if(sc.dataset.out) return; sc.classList.remove("loosening"); clearTimeout(holds.get(sc)); };
     sc.addEventListener("pointerdown",start);
     sc.addEventListener("pointerup",cancel);
     sc.addEventListener("pointerleave",cancel);
     sc.addEventListener("pointercancel",cancel);
+    sc.addEventListener("click",()=>{                    // single tap → little tighten-turn + metallic tick
+      if(sc.dataset.out) return;
+      sc.classList.remove("tick"); void sc.offsetWidth; sc.classList.add("tick");
+      blip(880);
+    });
   });
   function dropScrew(sc){
     sc.classList.remove("loosening"); sc.dataset.out="1";
@@ -652,16 +674,16 @@
     const fly=document.createElement("div"); fly.className="screw screwfly";
     fly.style.left=r.left+"px"; fly.style.top=r.top+"px";
     document.body.appendChild(fly); setTimeout(()=>fly.remove(),1700);
-    sc.style.visibility="hidden";                 // original vanishes; the clone falls out of the window
+    sc.classList.remove("loosening"); sc.classList.add("hole");   // leave an empty screw hole; the clone falls out of the window
     revSound();
     if(++screwsOut>=4) setTimeout(engineRoom,700);
   }
   function engineRoom(){
-    panel.classList.add("hang"); strobe.classList.add("on"); playTechno(3); alarmBip(); popConfetti();
+    panel.classList.add("hang"); strobe.classList.add("on"); playTechno(3); alarmBip();
     plaque.textContent="🔩 AV, MINE SKRUER! 🔩"; plaque.classList.add("show");
     setTimeout(()=>{                                   // near the end: screws reappear, panel snaps straight
-      screws.forEach(s=>{ s.style.visibility=""; delete s.dataset.out; }); screwsOut=0;
-      plaque.textContent="SAMLET IGEN 😤"; blip(760); popConfetti();
+      screws.forEach(s=>{ s.classList.remove("hole"); delete s.dataset.out; }); screwsOut=0;
+      plaque.textContent="SAMLET IGEN 😤"; blip(760);
     },2600);
     setTimeout(()=>{
       plaque.classList.remove("show"); strobe.classList.remove("on"); panel.classList.remove("hang");
@@ -735,7 +757,7 @@
   const readoutEl=document.querySelector(".readout"); let roBusy=false;
   readoutEl.addEventListener("click",()=>{
     if(roBusy) return; roBusy=true;
-    readoutEl.textContent="IKKE HER — TRYK PÅ TALLENE! 😄";
+    readoutEl.textContent="IKKE HER — TRYK PÅ TALLENE, HAHA";
     readoutEl.classList.remove("tease"); void readoutEl.offsetWidth; readoutEl.classList.add("tease");
     blip(620);
     setTimeout(()=>{ readoutEl.textContent="TRYK FOR AT TÆNDE LYSET"; readoutEl.classList.remove("tease"); roBusy=false; },2400);
