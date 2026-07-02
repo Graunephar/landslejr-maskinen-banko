@@ -2,7 +2,27 @@
 
 Digital bankoplader. Én statisk fil. Se [PLAN.md](PLAN.md) for beslutninger.
 
-Åbn lokalt: åbn `index.html` i en browser. Self-check: `index.html?test` (se konsol).
+## Kør lokalt
+
+Statisk fil, ingen build. Nemmest — åbn filen direkte:
+
+```sh
+open index.html          # localStorage virker også fra file://
+```
+
+Eller start en dev-server fra repo-roden (vælg én):
+
+```sh
+python3 -m http.server 8177   # → http://localhost:8177/
+npx serve .                   # node
+php -S localhost:8177         # php
+```
+
+Nyttige URL'er:
+
+- `http://localhost:8177/` — appen
+- `http://localhost:8177/?test` — self-check (5000 plader, se konsol)
+- `http://localhost:8177/?fejlfinding` — NY PLADE-knap + kolonne-info
 
 ## Deploy til Cloudflare Pages
 
