@@ -38,6 +38,12 @@
       transform:rotate(90deg); transform-origin:top left;
       padding:max(10px,env(safe-area-inset-left)) max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom));
     }
+    /* Rotated machine is landscape-shaped → fill layout so cells fit the (short) height instead of overflowing.
+       Machine width relates to screen height (dvh), machine height to screen width (dvw). */
+    .stage .bezel{ width:100%; max-width:min(1100px, 96dvh); height:min(calc(100dvw - 16px), 560px); }
+    .panel{ display:flex; flex-direction:column; height:100%; }
+    .stage .grid{ flex:1 1 auto; min-height:0; min-width:0; grid-template-columns:repeat(9,minmax(0,1fr)); }
+    .stage .cell{ aspect-ratio:auto; }
   }
   /* Small machines (old/small phones): the full-size 2× chrome + centered title overflows the rail.
      Scale the top chrome down so the title never collides with the controls. Grid stays big. */
@@ -54,6 +60,19 @@
     .stage .serial{ font-size:9.5px; }
     .stage .screw{ width:28px; height:28px; }
     .stage .s1{top:6px;left:6px}.stage .s2{top:6px;right:6px}.stage .s3{bottom:6px;left:6px}.stage .s4{bottom:6px;right:6px}
+  }
+  /* Ultra-small (ancient phones, ~320×480): shrink the chrome one more step */
+  @media (orientation:portrait) and (max-height:520px), (orientation:landscape) and (max-width:560px){
+    .stage .rail{ padding:3px 34px 5px; gap:5px; }
+    .stage .lgroup, .stage .rgroup{ gap:5px; }
+    .stage .crt{ width:56px; height:28px; } .stage .crt-num{ font-size:15px; } .stage .crt-num span{ font-size:9px; }
+    .stage .knob{ width:20px; height:20px; } .stage .tgl{ width:13px; height:20px; } .stage .redbtn{ width:20px; height:20px; }
+    .stage .fader{ width:30px; height:20px; }
+    .stage .title{ font-size:11px; letter-spacing:.04em; text-indent:.04em; }
+    .stage .sub{ font-size:5.5px; }
+    .stage .serial{ font-size:8.5px; }
+    .stage .screw{ width:24px; height:24px; }
+    .stage .s1{top:5px;left:5px}.stage .s2{top:5px;right:5px}.stage .s3{bottom:5px;left:5px}.stage .s4{bottom:5px;right:5px}
   }
 
   .bezel{ background:linear-gradient(180deg,var(--bezel1),var(--bezel2)); transition:background .45s; padding:7px; border-radius:15px; max-width:820px; width:100%;
