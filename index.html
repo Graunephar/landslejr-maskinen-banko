@@ -17,6 +17,7 @@
 
   /* --- Stage: always-landscape (ADR-10). Portrait → rotate whole app 90° via CSS. --- */
   .stage{
+    position:relative; overflow:hidden;
     width:100vw; height:100vh; width:100dvw; height:100dvh;
     display:flex; align-items:center; justify-content:center;
     background:radial-gradient(120% 90% at 50% -20%,var(--glowbg) 0%,var(--bg) 55%); transition:background .45s;
@@ -289,6 +290,11 @@
   .adbtn{ flex:none; color:#fff; text-decoration:none; font-weight:800; font-size:clamp(11px,2.5vw,14px); letter-spacing:.08em; white-space:nowrap;
     background:radial-gradient(circle at 40% 30%,var(--hot),var(--orange) 60%,var(--orange-deep)); padding:6px 13px; border-radius:6px; box-shadow:0 0 10px rgba(255,107,26,.6); }
   .adclose{ flex:none; color:var(--sub); font-size:14px; cursor:pointer; padding:0 2px; }
+  /* Easter egg — blank-cell tap: propeller flies across the whole screen, spinning. */
+  .propfly{ position:absolute; top:38%; left:-320px; z-index:60; width:min(260px,45vmin); pointer-events:none; animation:propcross 2.2s linear forwards; }
+  .propfly img{ display:block; width:100%; filter:drop-shadow(0 6px 14px rgba(0,0,0,.55)); animation:propspin 0.85s linear infinite; }
+  @keyframes propcross{ from{ left:-320px; } to{ left:calc(100% + 400px); } }
+  @keyframes propspin{ from{ transform:rotate(0); } to{ transform:rotate(360deg); } }
   /* MASKINEN final — rotating disco spotlights sweeping across the machine */
   .beams{ position:absolute; inset:-40%; z-index:4; pointer-events:none; opacity:0; mix-blend-mode:screen; transition:opacity .3s;
     background:conic-gradient(from 0deg,
@@ -373,6 +379,11 @@
       <span class="adtxt">Pssst… følger du <b>fdf'erfest</b> på insta? 👀</span>
       <a class="adbtn" id="adlink" href="https://www.instagram.com/fdfterfest/" target="_blank" rel="noopener">FØLG →</a>
       <span class="adclose" id="adclose">✕</span>
+    </div>
+    <div class="ad" id="ytad">
+      <span class="adtxt">Har du husket at følge <b>RøgvenderRapporten</b> på youtube?</span>
+      <a class="adbtn" id="ytlink" href="https://www.youtube.com/@rogvenderrapporten" target="_blank" rel="noopener">Åben youtube →</a>
+      <span class="adclose" id="ytclose">✕</span>
     </div>
     <canvas class="confetti" id="confetti"></canvas>
     <div class="win" id="win">
@@ -511,7 +522,7 @@
     for(let r=0;r<3;r++) for(let c=0;c<9;c++){
       const v=grid[r][c];
       const cell=document.createElement("div");
-      if(v==null){ cell.className="cell blank"; }
+      if(v==null){ cell.className="cell blank"; cell.addEventListener("click",flyPropeller); }
       else{
         cell.className="cell num"+(marks.has(v)?" lit":"");
         cell.textContent=v; cell.dataset.n=v;
@@ -692,6 +703,21 @@
   redbtn.addEventListener("click",()=>{ if(redHeld){ redHeld=false; return; } overheat(); });
   $("#adclose").addEventListener("click",()=>ad.classList.remove("show"));
   $("#adlink").addEventListener("click",()=>setTimeout(()=>ad.classList.remove("show"),100));
+
+  // Easter egg — tap a blank (number-less) plate → propeller spins across the screen + RøgvenderRapporten banner.
+  const ytad=$("#ytad"); let ytT=null, propFlying=false;
+  function showYt(){ ytad.classList.add("show"); blip(660); clearTimeout(ytT); ytT=setTimeout(()=>ytad.classList.remove("show"),7000); }
+  $("#ytclose").addEventListener("click",()=>ytad.classList.remove("show"));
+  $("#ytlink").addEventListener("click",()=>setTimeout(()=>ytad.classList.remove("show"),100));
+  function flyPropeller(){
+    if(partyActive||propFlying) return;
+    propFlying=true;
+    const p=document.createElement("div"); p.className="propfly"; p.style.top=(20+rnd(45))+"%";
+    p.innerHTML='<img src="RvR_Propel.svg" alt="">';
+    document.querySelector(".stage").appendChild(p); revSound();
+    p.addEventListener("animationend",()=>{ p.remove(); propFlying=false; });
+    showYt();
+  }
   // Hidden FDF'erfest spot #2: tap the fader (slides the handle) → ad
   const fader=document.querySelector(".fader");
   fader.addEventListener("click",()=>{ fader.classList.remove("slid"); void fader.offsetWidth; fader.classList.add("slid"); showAd(); });
