@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>BANKO — Maskinen · Landslejr 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ margin:0; height:100%; background:#0c0906; overflow:hidden; }
@@ -326,6 +329,179 @@
     background:radial-gradient(circle,#fff 0%,#ffb257 40%,#e0490f 85%); box-shadow:0 0 8px #ff922e;
     animation:ember .9s ease-out forwards; }
   @keyframes ember{ to{ transform:translate(var(--dx),var(--dy)) scale(.15); opacity:0; } }
+
+  /* ==========================================================================
+     SENIORFESTIVAL RESKIN (variant D — 8-bit)
+     Same brand palette as A/C, rendered as pixel art: zero radii, flat fills,
+     hard offset shadows with no blur, stepped animations, scanlines + dither.
+     Press Start 2P for the HUD (title, numbers, counter, win text); the rest
+     stays chunky monospace, which is the arcade convention and keeps long
+     Danish strings from overflowing the rail.
+     Structure/JS untouched — every easter-egg target still exists, repainted.
+     Palette: design/SENIORFESTIVAL-BRAND.md
+     ========================================================================== */
+  body{
+    --sf-ink:#111018; --sf-ink-2:#1c1526;
+    --sf-orange:#ff6a00; --sf-pink:#ff2d72; --sf-sand:#ffb25f; --sf-cyan:#00b5e2;
+    --sf-paper:#efe7e2; --sf-paper-2:#d9d3cf;
+    --px:"Press Start 2P",ui-monospace,monospace;
+    /* Legacy machine tokens re-pointed at the brand so unconverted rules
+       (embers, confetti, ads, strobes) land in-palette automatically. */
+    --orange:#ff6a00; --orange-deep:#ff2d72; --glow:#ffb25f; --hot:#ffb25f;
+    --teal:#00b5e2; --party:#ff2d72; --party2:#00b5e2;
+    --bg:#111018; --panel:#1c1526; --plate:#efe7e2; --plate-blank:#3a3348;
+    --ink:#111018; --sub:#ffb25f; --btnglow:#ff6a00;
+  }
+  html,body{ background:#0b0a10; }
+  *{ image-rendering:pixelated; }
+
+  /* Stage — dithered checkerboard ground + one corner bloom, hard-stopped. */
+  .stage{ background:
+      repeating-conic-gradient(rgba(255,255,255,.022) 0% 25%,transparent 0% 50%) 0 0/8px 8px,
+      radial-gradient(circle at 100% 0%,rgba(255,106,0,.30),transparent 45%),
+      var(--sf-ink); }
+  /* Scanlines over everything — the one global 8-bit tell. */
+  .stage::after{ content:""; position:absolute; inset:0; z-index:20; pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 2px,transparent 2px 5px); }
+
+  /* Cabinet — flat slab, 4px ink outline, hard pixel drop shadow. No radii anywhere. */
+  .bezel{ background:var(--sf-orange); padding:4px; border-radius:0; max-width:900px;
+    box-shadow:8px 8px 0 #000, 16px 16px 0 rgba(255,45,114,.55); }
+  .panel{ background:var(--sf-ink-2); border:4px solid #000; border-radius:0;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.06); padding:8px 10px 10px; }
+
+  /* Screws → chunky 8px pixel studs. Still clickable, still unscrew. */
+  .screw, .stage .screw{ width:10px; height:10px; border-radius:0; border:2px solid #000;
+    background:var(--sf-sand); box-shadow:none; }
+  .screw::before, .screw::after{ display:none; }
+  .screw.hole{ background:#000; border-color:#2a2338; }
+  .s1{top:4px;left:4px}.s2{top:4px;right:4px}.s3{bottom:4px;left:4px}.s4{bottom:4px;right:4px}
+  .stage .s1{top:4px;left:4px}.stage .s2{top:4px;right:4px}
+  .stage .s3{bottom:4px;left:4px}.stage .s4{bottom:4px;right:4px}
+
+  /* HUD rail */
+  .rail{ padding:4px 12px 10px; }
+  .nameplate{ max-width:46%; }
+  .lgroup, .rgroup{ max-width:29%; }
+  .title{ font-family:var(--px); color:var(--sf-sand); font-weight:400;
+    font-size:clamp(8px,1.5vw,15px); letter-spacing:.06em; text-indent:.06em;
+    text-shadow:3px 3px 0 #000, 0 0 0 transparent; }
+  .stage .title{ font-family:var(--px); letter-spacing:.06em; text-indent:.06em; }
+  .sub{ font-family:var(--px); color:var(--sf-cyan); font-size:clamp(5px,.85vw,8px);
+    letter-spacing:.1em; text-indent:.1em; margin-top:8px; text-shadow:2px 2px 0 #000; }
+
+  /* CRT stays — it is the most 8-bit thing here. Recoloured to brand cyan. */
+  .crt{ background:#06121a; border:3px solid #000; border-radius:0; box-shadow:none; width:118px; }
+  .crt-grid{ background-image:linear-gradient(var(--sf-cyan) 1px,transparent 1px),
+    linear-gradient(90deg,var(--sf-cyan) 1px,transparent 1px); background-size:8px 8px; opacity:.22; }
+  .crt-num{ font-family:var(--px); color:var(--sf-cyan); font-weight:400;
+    font-size:clamp(6px,.95vw,10px); text-shadow:2px 2px 0 #000; }
+  .crt-num span{ color:#2d6b7d; font-size:.65em; }
+  .scan{ background:linear-gradient(rgba(0,181,226,.30),transparent); animation:scan 2.6s steps(14) infinite; }
+
+  /* Chrome controls → square pixel buttons. Kept in DOM so eggs still fire. */
+  .knob{ border-radius:0; background:#2a2338; border:3px solid #000; }
+  .knob::after{ left:50%; top:50%; width:6px; height:6px; border-radius:0;
+    transform:translate(-50%,-50%) !important; background:var(--sf-sand); box-shadow:none; }
+  .tgl{ border-radius:0; background:#2a2338; border:3px solid #000; }
+  .tgl.on::after{ border-radius:0; background:var(--sf-cyan); box-shadow:none; }
+  .fader{ border-radius:0; background:#2a2338; border:3px solid #000; box-shadow:none; }
+  .fader::before{ background:#000; }
+  .fader::after{ border-radius:0; background:var(--sf-sand); box-shadow:none; }
+  .redbtn{ border-radius:0; background:var(--sf-pink); border:3px solid #000; box-shadow:none; }
+  .serial{ font-family:var(--px); color:var(--sf-cyan); font-weight:400;
+    font-size:clamp(4.5px,.62vw,7px); letter-spacing:0; text-shadow:2px 2px 0 #000; }
+
+  /* Battery → chunky pixel meter. Same 15 segments, same JS. */
+  .batwrap{ margin:0 2px 10px; }
+  .battery{ background:#000; border:3px solid #000; border-radius:0; box-shadow:none; padding:3px; gap:3px; }
+  .battery i{ background:#2a2338; border-radius:0; box-shadow:none; transition:background .08s steps(2); }
+  .battery i.on.g{ background:var(--sf-sand); }
+  .battery i.on.a{ background:var(--sf-orange); }
+  .battery i.on.r{ background:var(--sf-pink); }
+  .nub{ background:var(--sf-sand); border-radius:0; width:8px; }
+  .full .battery{ border-color:var(--sf-orange); box-shadow:0 0 0 3px var(--sf-orange); }
+
+  /* Plate — square pixel tiles. Numbers are the hero. */
+  .grid{ background:#000; border:3px solid #000; border-radius:0; padding:4px; gap:4px; }
+  .cell{ border-radius:0; font-family:var(--px); font-weight:400;
+    font-size:clamp(7px,2.9cqw,17px); }
+  .cell.num{ background:var(--sf-paper); color:var(--sf-ink);
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.28), inset 4px 4px 0 #fff;
+    transition:none; }
+  .cell.num:active{ transform:translate(2px,2px);
+    box-shadow:inset -2px -2px 0 rgba(0,0,0,.28), inset 2px 2px 0 #fff; }
+  .cell.blank{ background:var(--plate-blank); opacity:1;
+    box-shadow:inset -4px -4px 0 rgba(0,0,0,.35), inset 4px 4px 0 rgba(255,255,255,.05); }
+  .cell.lit{ background:var(--sf-orange); color:#fff; text-shadow:2px 2px 0 rgba(0,0,0,.45);
+    box-shadow:inset -4px -4px 0 var(--sf-pink), inset 4px 4px 0 var(--sf-sand); }
+  /* Stepped blink instead of a smooth glow — 8-bit sprites do not fade. */
+  @keyframes pulse{
+    0%,49%  { box-shadow:inset -4px -4px 0 var(--sf-pink), inset 4px 4px 0 var(--sf-sand) }
+    50%,100%{ box-shadow:inset -4px -4px 0 var(--sf-orange), inset 4px 4px 0 var(--sf-pink) } }
+  .cell.lit{ animation-timing-function:steps(1) !important; }
+
+  /* Status bar */
+  .statusbar{ padding:0 22px; }
+  .pwr{ width:12px; height:12px; border-radius:0; background:var(--sf-orange);
+    border:2px solid #000; box-shadow:none; animation:breathe 1s steps(2) infinite; }
+  .readout{ color:var(--sf-sand); font-size:9px; letter-spacing:.16em; font-weight:800; }
+  .rivets i{ border-radius:0; width:8px; height:8px; background:var(--sf-cyan);
+    border:2px solid #000; box-shadow:none; }
+
+  /* Win / party — arcade victory screen */
+  .win{ background:repeating-linear-gradient(0deg,rgba(0,0,0,.30) 0 2px,transparent 2px 4px),rgba(17,16,24,.95); }
+  .win .type{ font-family:var(--px); font-weight:400; font-size:clamp(16px,5.5vw,40px);
+    letter-spacing:.06em; text-shadow:4px 4px 0 var(--sf-pink), 8px 8px 0 #000; }
+  .win .banko{ font-family:var(--px); color:var(--sf-sand); font-weight:400;
+    font-size:clamp(10px,2.4vw,18px); letter-spacing:.12em; text-shadow:3px 3px 0 #000; }
+  .ret .lbl{ font-family:var(--px); color:var(--sf-cyan); font-size:8px; letter-spacing:.08em;
+    text-shadow:2px 2px 0 #000; }
+  .ret .track{ background:#000; border:3px solid #000; border-radius:0; box-shadow:none; }
+  .ret .bar{ background:var(--sf-orange); }
+  .ret .bar.run{ transition:width 10s steps(40); }
+
+  /* Overlays & eggs — flat fills, hard shadows, no blur */
+  .secret, .plaque, .bigtext{ font-family:var(--px); font-weight:400; letter-spacing:.05em; }
+  .secret{ font-size:clamp(9px,2.4vw,18px); }
+  .plaque{ background:rgba(17,16,24,.90); color:var(--sf-sand);
+    font-size:clamp(12px,4vw,30px); text-shadow:4px 4px 0 #000; }
+  .bigtext{ font-size:clamp(14px,6vw,48px); color:var(--sf-sand);
+    text-shadow:4px 4px 0 var(--sf-pink), 8px 8px 0 #000; }
+  .ad{ background:var(--sf-ink-2); border:4px solid #000; border-radius:0;
+    box-shadow:6px 6px 0 var(--sf-orange); }
+  .adtxt{ color:var(--sf-paper); }
+  .adtxt b{ color:var(--sf-sand); }
+  .adbtn{ font-family:var(--px); font-size:clamp(7px,1.6vw,10px); font-weight:400;
+    background:var(--sf-orange); color:#fff; border-radius:0; box-shadow:3px 3px 0 #000; letter-spacing:.04em; }
+  .adclose{ color:var(--sf-sand); }
+  .dbg button{ font-family:var(--px); font-size:9px; font-weight:400; background:var(--sf-pink);
+    border:3px solid #000; border-radius:0; }
+  .dbg .info{ color:var(--sf-cyan); }
+  .aura::before{ background:radial-gradient(circle at 50% 47%,rgba(255,178,95,.45),
+    rgba(255,106,0,.18) 40%,transparent 66%); }
+  .ember{ border-radius:0; width:6px; height:6px; background:var(--sf-sand); box-shadow:none;
+    animation-timing-function:steps(6); }
+  .pulsering{ border-radius:0; border:6px solid var(--sf-sand); box-shadow:none;
+    animation-timing-function:steps(10); }
+  @keyframes chipflash{ 0%{background:var(--sf-sand);opacity:.7} 33%{background:var(--sf-cyan);opacity:.7}
+    66%{background:var(--sf-orange);opacity:.7} 100%{background:var(--sf-pink);opacity:.7} }
+  @keyframes strobe{ 0%{background:#fff;opacity:.85} 25%{background:var(--sf-pink);opacity:.7}
+    50%{background:#000;opacity:.25} 75%{background:var(--sf-cyan);opacity:.7}
+    100%{background:var(--sf-orange);opacity:.8} }
+  .beams{ background:conic-gradient(from 0deg,
+      transparent 0 14deg, rgba(255,106,0,.55) 14deg 22deg, transparent 22deg 60deg,
+      rgba(255,45,114,.5) 60deg 68deg, transparent 68deg 108deg,
+      rgba(0,181,226,.45) 108deg 116deg, transparent 116deg 168deg,
+      rgba(255,178,95,.55) 168deg 176deg, transparent 176deg 240deg,
+      rgba(255,106,0,.5) 240deg 248deg, transparent 248deg 300deg,
+      rgba(255,45,114,.45) 300deg 308deg, transparent 308deg 360deg); }
+  .beams.on{ animation:beamspin 3.4s steps(24) infinite; }
+
+  @media (prefers-reduced-motion:reduce){
+    .cell.lit,.pwr,.scan,.beams.on,.stage::after{ animation:none !important; }
+  }
+  .sub{ white-space:normal; line-height:1.5; }
 </style>
 </head>
 <body>
@@ -340,8 +516,8 @@
         <div class="knobs"><span class="knob k1"></span><span class="knob k3"></span><span class="tgl on"></span></div>
       </div>
       <div class="nameplate">
-        <div class="title" id="title">MASKINEN</div>
-        <div class="sub">BANKO · LANDSLEJR 2026</div>
+        <div class="title" id="title">BANKO</div>
+        <div class="sub">RØGVENDERRAPPORTEN · SENIORFESTIVAL 2026</div>
       </div>
       <div class="rgroup">
         <span class="fader"></span>

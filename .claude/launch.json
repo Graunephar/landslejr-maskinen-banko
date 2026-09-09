@@ -1,11 +1,6 @@
 {
   "version": "0.0.1",
   "configurations": [
-    {
-      "name": "banko",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8177"],
-      "port": 8177
-    }
+    { "name": "banko-8179", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8179"], "port": 8179 }
   ]
 }
