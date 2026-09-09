@@ -376,10 +376,10 @@
   /* Grid-breaking watermark, printed under everything in pale sand ink. */
   /* Watermark: centred on the sheet and scaled off the long viewport axis so
      it fills the width the machine actually has, in either orientation. */
-  .panel::before{ content:"BANKO"; position:absolute; inset:0; z-index:0;
+  .panel::before{ content:"BANKO"; position:absolute; inset:0; z-index:4;
     pointer-events:none; display:flex; align-items:center; justify-content:center;
     font-family:var(--display); font-size:27vmax; line-height:.78;
-    letter-spacing:-.065em; color:var(--sand); opacity:.30; mix-blend-mode:multiply;
+    letter-spacing:-.065em; color:var(--sand); opacity:.26; mix-blend-mode:multiply;
     transform:rotate(-4deg); white-space:nowrap; }
   .rail, .batwrap, .grid, .statusbar{ position:relative; z-index:1; }
 
@@ -445,22 +445,22 @@
     font-size:clamp(7px,1.05vmax,11px); letter-spacing:.34em; text-shadow:none; }
   .stage .serial{ font-size:clamp(7px,1.05vmax,11px); }
 
-  /* Chips → an ink-swatch column down the right trim. */
-  .knobs{ position:absolute; right:6px; top:34%; z-index:3;
-    flex-direction:column; gap:7px; }
-  .fader{ position:absolute; right:6px; bottom:22%; z-index:3; }
-  .redbtn{ position:absolute; right:6px; bottom:12%; z-index:3; }
-  .knob{ border-radius:50%; background:var(--cyan); border:2px solid var(--ink); }
-  .knob::after{ display:none; }
-  .tgl{ border-radius:0; background:var(--pink); border:2px solid var(--ink); }
-  .tgl.on::after{ display:none; }
-  .fader{ border-radius:0; background:var(--sand); border:2px solid var(--ink);
-    box-shadow:none; }
-  .fader::before, .fader::after{ display:none; }
-  .redbtn{ border-radius:50%; background:var(--orange); border:2px solid var(--ink);
-    box-shadow:none; }
+  /* 1 — Chips are no longer knobs in a column: one flush ink-swatch strip
+     down the right trim, the way a press sheet carries its colour bar. */
+  .knobs{ position:absolute; right:0; top:50%; z-index:3;
+    flex-direction:column; gap:0; transform:translateY(-50%); }
+  .fader{ position:absolute; right:0; top:50%; z-index:3;
+    transform:translateY(calc(-50% + 42px)); }
+  .redbtn{ position:absolute; right:0; top:50%; z-index:3;
+    transform:translateY(calc(-50% + 63px)); }
   .knob, .tgl, .fader, .redbtn,
-  .stage .knob, .stage .tgl, .stage .fader, .stage .redbtn{ width:15px; height:15px; }
+  .stage .knob, .stage .tgl, .stage .fader, .stage .redbtn{
+    width:13px; height:21px; border:0; border-radius:0; box-shadow:none; }
+  .knob{ background:var(--cyan); } .knob.k3{ background:var(--ink); }
+  .knob::after, .tgl.on::after, .fader::before, .fader::after{ display:none; }
+  .tgl{ background:var(--pink); }
+  .fader{ background:var(--sand); }
+  .redbtn{ background:var(--orange); }
 
   /* Progress → an ink rule that fills. No gauge, no segments-as-cells. */
   .batwrap{ margin:0 4px 12px; }
@@ -472,21 +472,38 @@
   .full .battery{ border-bottom-color:var(--orange); box-shadow:none; }
 
   /* The plate — flat ink blocks, hard edges, paper gutters. */
-  .grid{ background:none; border:0; border-radius:0; padding:0; gap:6px; }
+  /* 3 — nothing on a press lands perfectly square, and the ink lays down
+     unevenly across the sheet. */
+  .grid{ background:none; border:0; border-radius:0; padding:0; gap:6px;
+    transform:rotate(-1.1deg); }
+  .cell.num:nth-child(9n+2), .cell.num:nth-child(9n+5){ background:#e4dcd4; }
+  .cell.num:nth-child(9n+3), .cell.num:nth-child(9n+7){ background:#dcd4cb; }
+  .cell.num:nth-child(9n+6){ background:#e9e1d9; }
   .cell{ border-radius:0; overflow:visible; }
   .cell.num{ background:var(--paper-2); color:var(--ink); box-shadow:none;
     font-family:var(--display); font-weight:400; letter-spacing:-.04em;
     transition:background .08s,color .08s; }
   .cell.num:active{ transform:translate(1px,1px); box-shadow:none; }
-  .cell.blank{ background:none; opacity:1; box-shadow:inset 0 0 0 2px rgba(17,16,24,.10); }
-  .cell.lit{ background:var(--orange); color:var(--ink); text-shadow:none;
+  /* 4 — blanks are a pale sand plate, so the sheet reads as three inks. */
+  .cell.blank{ background:rgba(255,178,95,.20); opacity:1; box-shadow:none;
+    mix-blend-mode:multiply; }
+  .cell.num.lit{ background:var(--orange); color:var(--ink); text-shadow:none;
     box-shadow:none; animation:none; }
   /* Misregistration: a pink plate printed 5px off, multiplied under the orange. */
+  /* 9 — screenprint ink spreads; a razor-sharp offset reads digital. */
   .cell.lit::after{ content:""; position:absolute; inset:0; z-index:-1;
-    background:var(--pink); mix-blend-mode:multiply; transform:translate(5px,5px); }
+    background:var(--pink); mix-blend-mode:multiply; transform:translate(5px,5px);
+    filter:blur(1.2px); }
 
-  /* Status line → press credits set in small caps. */
+  /* 6 — a hairline trim rectangle turns the screen into a cut sheet; the
+     register crosshairs at the corners already read as crop marks. */
+  .bezel::before{ content:""; position:absolute; inset:16px; z-index:5;
+    pointer-events:none; border:1px solid rgba(17,16,24,.28); }
+
+  /* 7 — the status line is a printer's colophon, not a machine readout. */
   .statusbar{ padding:0 14px; }
+  .readout{ font-size:8px; letter-spacing:.17em; }
+  .readout::after{ content:" · TRYKT I NR. SNEDE"; opacity:.55; }
   .pwr{ width:11px; height:11px; border-radius:50%; background:var(--pink);
     box-shadow:none; animation:none; }
   .readout{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.6;
@@ -498,15 +515,17 @@
   .rivets i:nth-child(6){ background:var(--paper-2) }
 
   /* Win — the poster is overprinted edge to edge. */
-  .win{ background:var(--paper); }
-  .win .type{ font-family:var(--display); font-weight:400; color:var(--ink);
+  /* 8 — the poster flips: full orange flood, type knocked out to paper,
+     pink plate printed 8px off. */
+  .win{ background:var(--orange); }
+  .win .type{ font-family:var(--display); font-weight:400; color:var(--paper);
     font-size:clamp(38px,13vw,150px); letter-spacing:-.06em; line-height:.82;
-    text-shadow:8px 8px 0 var(--orange), 16px 16px 0 var(--pink); }
-  .win .banko{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.7;
+    text-shadow:8px 8px 0 var(--pink); }
+  .win .banko{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.8;
     text-transform:uppercase; letter-spacing:.3em; font-size:clamp(9px,1.6vw,14px); }
-  .ret .lbl{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.6;
+  .ret .lbl{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.75;
     text-transform:uppercase; letter-spacing:.2em; font-size:10px; }
-  .ret .track{ background:none; border:0; border-bottom:3px solid rgba(17,16,24,.18);
+  .ret .track{ background:none; border:0; border-bottom:3px solid rgba(17,16,24,.28);
     border-radius:0; box-shadow:none; height:3px; }
   .ret .bar{ background:var(--ink); height:3px; }
 
