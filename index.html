@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>BANKO — Maskinen · Landslejr 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ margin:0; height:100%; background:#0c0906; overflow:hidden; }
@@ -326,6 +329,143 @@
     background:radial-gradient(circle,#fff 0%,#ffb257 40%,#e0490f 85%); box-shadow:0 0 8px #ff922e;
     animation:ember .9s ease-out forwards; }
   @keyframes ember{ to{ transform:translate(var(--dx),var(--dy)) scale(.15); opacity:0; } }
+
+  /* ==========================================================================
+     SENIORFESTIVAL RESKIN (variant A — full poster)
+     Overrides the machine chrome above. Structure/JS untouched: every element
+     the script talks to still exists, so all easter eggs keep working — the
+     machine parts are just repainted as brand objects (screws → accent dots,
+     CRT → count badge, knobs/fader → dots, battery → gradient rail).
+     Tokens: design/seniorfestival-tokens.css · Rules: design/SENIORFESTIVAL-BRAND.md
+     ========================================================================== */
+  body{
+    --sf-ink:#111018; --sf-ink-2:#201722;
+    --sf-orange:#ff6a00; --sf-pink:#ff2d72; --sf-red:#ff4a1f;
+    --sf-sand:#ffb25f; --sf-cyan:#00b5e2;
+    --sf-paper:#efe7e2; --sf-paper-2:#d9d3cf;
+    --sf-hot:linear-gradient(135deg,#ff6a00,#ff2d72);
+    /* Re-point the legacy machine tokens at the brand so every unconverted
+       rule (glows, embers, confetti, ads) lands in-palette automatically. */
+    --orange:#ff6a00; --orange-deep:#ff2d72; --glow:#ff6a00; --hot:#ffb25f;
+    --teal:#00b5e2; --party:#ff2d72; --party2:#00b5e2;
+    --bg:#111018; --panel:transparent; --plate:#efe7e2; --plate-blank:#d9d3cf;
+    --ink:#111018; --sub:rgba(255,255,255,.58); --btnglow:#ff6a00;
+    font-family:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:500;
+  }
+  html,body{ background:var(--sf-ink); }
+
+  /* Stage — poster ground: ink + one corner bloom (never centred). */
+  .stage{ background:
+      radial-gradient(circle at 100% 0%,rgba(255,106,0,.28),transparent 42%),
+      radial-gradient(circle at 0% 100%,rgba(255,45,114,.16),transparent 40%),
+      linear-gradient(135deg,var(--sf-ink-2),var(--sf-ink)); }
+
+  /* Frame gone. .bezel/.panel stay in the DOM (shake/hang/throb eggs use them)
+     but stop being metal — the plate now floats on the poster. */
+  .bezel{ background:none; box-shadow:none; padding:0; border-radius:0; max-width:980px; }
+  .panel{ background:none; border:0; border-radius:0; box-shadow:none; padding:4px 10px 8px; }
+
+  /* Screws → corner accent dots. Still clickable, still unscrew. */
+  .screw, .stage .screw{ width:11px; height:11px; background:var(--sf-orange);
+    border:0; box-shadow:0 0 14px rgba(255,106,0,.7); opacity:.85; }
+  .screw::before, .screw::after{ display:none; }
+  .screw.hole{ background:rgba(255,255,255,.10); box-shadow:none; }
+  .s1{top:2px;left:2px}.s2{top:2px;right:2px}.s3{bottom:2px;left:2px}.s4{bottom:2px;right:2px}
+  .stage .s1{top:2px;left:2px}.stage .s2{top:2px;right:2px}
+  .stage .s3{bottom:2px;left:2px}.stage .s4{bottom:2px;right:2px}
+
+  /* Header rail */
+  .rail{ padding:2px 18px 10px; }
+  .title{ color:#fff; font-weight:900; letter-spacing:-.035em; text-indent:0;
+    font-size:clamp(20px,4.4vw,40px); text-shadow:none; }
+  .stage .title{ letter-spacing:-.035em; text-indent:0; }
+  .sub{ color:var(--sf-sand); font-weight:900; text-transform:uppercase;
+    letter-spacing:.08em; text-indent:.08em; margin-top:5px; }
+
+  /* CRT → ghost count badge (pill, brand type). Phosphor/scanline retired. */
+  .crt{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    border-radius:999px; box-shadow:none; }
+  .crt-grid, .scan{ display:none; }
+  .crt-num{ color:#fff; font-weight:900; letter-spacing:-.02em; text-shadow:none; }
+  .crt-num span{ color:rgba(255,255,255,.5); font-weight:700; }
+
+  /* Chrome controls → brand dots. Kept in DOM so their easter eggs still fire. */
+  .knob{ background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.16); }
+  .knob::after{ left:50%; top:50%; width:6px; height:6px; border-radius:50%;
+    transform:translate(-50%,-50%) !important; background:var(--sf-sand); box-shadow:none; }
+  .tgl{ background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.16); border-radius:999px; }
+  .tgl.on::after{ background:var(--sf-cyan); border-radius:999px; box-shadow:0 0 10px rgba(0,181,226,.8); }
+  .fader{ background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
+    border-radius:999px; box-shadow:none; }
+  .fader::before{ background:rgba(255,255,255,.18); }
+  .fader::after{ background:var(--sf-sand); border-radius:999px; box-shadow:none; }
+  .redbtn{ background:var(--sf-hot); border:0; box-shadow:0 0 18px rgba(255,45,114,.55); }
+  .serial{ color:rgba(255,255,255,.5); font-weight:700; letter-spacing:.04em; text-shadow:none; }
+
+  /* Battery → gradient progress rail (still 15 steps, still the same JS). */
+  .batwrap{ margin:0 2px 12px; }
+  .battery{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
+    border-radius:999px; box-shadow:none; padding:3px; gap:3px; }
+  .battery i{ background:rgba(255,255,255,.07); border-radius:999px; box-shadow:none; }
+  .battery i.on.g, .battery i.on.a, .battery i.on.r{
+    background:var(--sf-hot); box-shadow:0 0 12px rgba(255,45,114,.55); }
+  .nub{ display:none; }
+  .full .battery{ border-color:rgba(255,106,0,.9); box-shadow:0 0 22px rgba(255,106,0,.45); }
+
+  /* Plate — the hero. No frame, tiles float straight on the poster. */
+  .grid{ background:none; border:0; padding:0; gap:7px; border-radius:0; }
+  .cell{ border-radius:14px; }
+  .cell.num{ background:var(--sf-paper); color:var(--sf-ink); font-weight:900;
+    letter-spacing:-.03em; box-shadow:0 6px 0 rgba(0,0,0,.35); }
+  .cell.num:active{ transform:translateY(3px); box-shadow:0 3px 0 rgba(0,0,0,.35); }
+  .cell.blank{ background:rgba(255,255,255,.035); opacity:1; box-shadow:none; }
+  .cell.lit{ background:var(--sf-hot); color:#fff; text-shadow:none;
+    box-shadow:0 6px 0 rgba(0,0,0,.35),0 0 28px 4px rgba(255,45,114,.55); }
+  @keyframes pulse{
+    0%,100%{ box-shadow:0 6px 0 rgba(0,0,0,.35),0 0 22px 3px rgba(255,45,114,.45) }
+    50%    { box-shadow:0 6px 0 rgba(0,0,0,.35),0 0 34px 8px rgba(255,106,0,.6) } }
+
+  /* Status bar */
+  .statusbar{ padding:0 18px; }
+  .pwr{ width:12px; height:12px; background:var(--sf-orange); box-shadow:0 0 14px 3px rgba(255,106,0,.8); }
+  .readout{ color:rgba(255,255,255,.58); font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
+  .rivets i{ background:rgba(255,255,255,.16); box-shadow:none; }
+
+  /* Party / win — display type, brand gradient. */
+  .win{ background:radial-gradient(circle at 50% 40%,rgba(255,106,0,.22),transparent 55%),rgba(17,16,24,.94); }
+  .win .type{ font-weight:900; letter-spacing:-.04em; text-shadow:0 0 40px rgba(255,45,114,.6); }
+  .win .banko{ color:var(--sf-sand); font-weight:900; letter-spacing:.24em; }
+  .ret .lbl{ color:rgba(255,255,255,.72); font-weight:900; text-transform:uppercase; }
+  .ret .track{ background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); border-radius:999px; box-shadow:none; }
+  .ret .bar{ background:var(--sf-hot); }
+
+  /* Overlays & eggs kept, repainted */
+  .secret, .plaque, .bigtext{ font-weight:900; letter-spacing:-.02em; }
+  .plaque{ background:rgba(17,16,24,.88); color:var(--sf-sand); text-shadow:0 0 34px rgba(255,106,0,.8); }
+  .bigtext{ text-shadow:0 0 40px rgba(255,45,114,.7),0 0 14px rgba(255,106,0,.7); }
+  .ad{ background:linear-gradient(135deg,#201722,#111018); border:1px solid rgba(255,255,255,.14);
+    border-radius:999px; box-shadow:0 18px 45px rgba(255,45,114,.28); }
+  .adtxt{ color:rgba(255,255,255,.86); }
+  .adtxt b{ color:var(--sf-sand); }
+  .adbtn{ background:var(--sf-hot); border-radius:999px; font-weight:900; letter-spacing:.02em;
+    box-shadow:0 10px 26px rgba(255,45,114,.4); }
+  .adclose{ color:rgba(255,255,255,.5); }
+  .dbg button{ background:var(--sf-hot); border:0; border-radius:999px; font-weight:900; }
+  .dbg .info{ color:rgba(255,255,255,.58); }
+  @keyframes chipflash{ 0%{background:#ffb25f;opacity:.7} 33%{background:#00b5e2;opacity:.7}
+    66%{background:#ff6a00;opacity:.7} 100%{background:#ff2d72;opacity:.7} }
+  .beams{ background:conic-gradient(from 0deg,
+      transparent 0 14deg, rgba(255,106,0,.55) 14deg 22deg, transparent 22deg 60deg,
+      rgba(255,45,114,.5) 60deg 68deg, transparent 68deg 108deg,
+      rgba(0,181,226,.45) 108deg 116deg, transparent 116deg 168deg,
+      rgba(255,178,95,.55) 168deg 176deg, transparent 176deg 240deg,
+      rgba(255,106,0,.5) 240deg 248deg, transparent 248deg 300deg,
+      rgba(255,45,114,.45) 300deg 308deg, transparent 308deg 360deg); }
+
+  @media (prefers-reduced-motion:reduce){
+    .cell.lit, .pwr, .scan, .beams.on{ animation:none !important; }
+  }
 </style>
 </head>
 <body>
