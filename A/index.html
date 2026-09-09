@@ -593,6 +593,51 @@
   @media (prefers-reduced-motion:reduce){
     .beams.on{ animation:none !important; }
   }
+
+  /* --- Easter egg K — stempelbordet ------------------------------------
+     Hold a finger on bare paper and a rubber stamp slams down there. They
+     accumulate, so the sheet fills with press marks; the eighth one calls a
+     re-pull and the whole lot lifts at once. Stamps never take pointer
+     events, so marking numbers is never blocked. --------------------- */
+  .stamp{ position:absolute; z-index:6; pointer-events:none;
+    font-family:var(--display); font-weight:400; letter-spacing:-.02em;
+    font-size:clamp(13px,2.4vmax,30px); line-height:1; white-space:nowrap;
+    padding:.28em .42em; border:.16em solid currentColor; border-radius:2px;
+    mix-blend-mode:multiply; opacity:0;
+    transform:translate(-50%,-50%) rotate(var(--rot)) scale(2.6);
+    animation:stampslam .34s cubic-bezier(.2,1.5,.35,1) forwards; }
+  .stamp.ink1{ color:var(--pink); } .stamp.ink2{ color:var(--orange); }
+  .stamp.ink3{ color:var(--ink); }
+  /* the smeared duplicate underneath = ink pushed out at the edge */
+  .stamp::before{ content:attr(data-t); position:absolute; left:-.42em; top:-.28em;
+    padding:.28em .42em; border:.16em solid currentColor; border-radius:2px;
+    filter:blur(1.6px); opacity:.5; transform:translate(2px,2px); }
+  @keyframes stampslam{
+    0%  { opacity:0;   transform:translate(-50%,-50%) rotate(var(--rot)) scale(2.6) }
+    62% { opacity:.86; transform:translate(-50%,-50%) rotate(var(--rot)) scale(.94) }
+    100%{ opacity:.78; transform:translate(-50%,-50%) rotate(var(--rot)) scale(1) }
+  }
+  .stamp.lift{ animation:stamplift .5s ease forwards; }
+  @keyframes stamplift{ to{ opacity:0; transform:translate(-50%,-50%) rotate(var(--rot)) scale(1.5) } }
+  /* the re-pull: one full-bleed mark across the whole sheet */
+  .repull{ position:absolute; inset:0; z-index:7; pointer-events:none;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--display); font-weight:400; color:var(--pink);
+    font-size:clamp(30px,9vmax,120px); letter-spacing:-.05em;
+    mix-blend-mode:multiply; opacity:0; transform:rotate(-7deg) scale(2.2);
+    animation:stampslam .42s cubic-bezier(.2,1.5,.35,1) forwards; --rot:-7deg; }
+
+  /* --- Easter egg L — crop-mark alignment ------------------------------
+     The register crosshairs are the four screws. Hit all four inside 3s and
+     the sheet pulls square; it will not stay there. --------------------- */
+  .grid{ transition:transform .55s cubic-bezier(.2,1.2,.3,1); }
+  .grid.aligned{ transform:rotate(0deg); }
+
+  /* --- Easter egg M — colour-bar calibration ---------------------------
+     Tap the left-trim swatches top to bottom and the press runs each ink
+     across the whole sheet in turn. ------------------------------------- */
+  .inkflood{ position:absolute; inset:0; z-index:7; pointer-events:none;
+    mix-blend-mode:multiply; opacity:.7; }
 </style>
 </head>
 <body>
@@ -1310,6 +1355,114 @@
     el.addEventListener("pointerleave",crownUp);
     el.addEventListener("pointercancel",crownUp);
   });
+
+
+  // ---------- K — stempelbordet: hold on bare paper to slam a stamp ----------
+  // Poster-native version of the "big rubber stamp" idea: not a one-shot on a
+  // win, but a repeatable mark you can cover the sheet with. Long-press only,
+  // so it can never be mistaken for (or steal) a tap on a number.
+  const STAMPS=["GODKENDT","AFVIST","KOPI","FORTROLIGT","PRØVETRYK","HÅNDTRYKT",
+                "RØGVENDT","UDSOLGT","MÅ IKKE VENDES","SET AF LEDELSEN"];
+  const STAMP_SKIP=".cell,.crt,.crt-num,.serial,.knob,.tgl,.fader,.redbtn,.screw,"+
+                   ".pwr,.readout,.rivets,.rivets i,.battery,.batwrap,.title,.sub,"+
+                   ".nameplate,.win,.ad,.adbtn,.adclose,.dbg,.dbg button";
+  let stampTimer=null, stampCount=0, stampBusy=false;
+
+  function slamStamp(px,py){
+    const el=document.createElement("div");
+    el.className="stamp ink"+(1+Math.floor(Math.random()*3));
+    const word=STAMPS[Math.floor(Math.random()*STAMPS.length)];
+    el.textContent=word; el.dataset.t=word;
+    el.style.setProperty("--rot",(Math.random()*34-17).toFixed(1)+"deg");
+    el.style.left=px+"px"; el.style.top=py+"px";
+    panel.appendChild(el);
+    blip(190); if(navigator.vibrate) navigator.vibrate(18);
+    stampCount++;
+    if(stampCount>=8) rePull();
+  }
+
+  // Eighth stamp → the sheet is re-pulled and every mark lifts at once.
+  function rePull(){
+    stampBusy=true; stampCount=0;
+    const r=document.createElement("div"); r.className="repull"; r.textContent="PRØVETRYK";
+    panel.appendChild(r); blip(120);
+    setTimeout(()=>{
+      panel.querySelectorAll(".stamp").forEach(s=>s.classList.add("lift"));
+      r.classList.add("lift");
+      setTimeout(()=>{ panel.querySelectorAll(".stamp,.repull").forEach(n=>n.remove());
+                       stampBusy=false; },520);
+    },900);
+  }
+
+  panel.addEventListener("pointerdown",e=>{
+    if(partyActive||stampBusy) return;
+    if(e.target.closest(STAMP_SKIP)) return;         // never over a live target
+    const r=panel.getBoundingClientRect();
+    const px=e.clientX-r.left, py=e.clientY-r.top;
+    stampTimer=setTimeout(()=>{ stampTimer=null; slamStamp(px,py); },560);
+  });
+  ["pointerup","pointercancel","pointerleave","pointermove"].forEach(t=>
+    panel.addEventListener(t,e=>{
+      if(t==="pointermove" && stampTimer===null) return;
+      clearTimeout(stampTimer); stampTimer=null;
+    }));
+
+
+  // ---------- L — crop-mark alignment: all four crosshairs within 3s ----------
+  // Additive: the screws keep their existing tick-on-tap and hold-to-unscrew.
+  (function(){
+    let hits=new Set(), first=0;
+    document.querySelectorAll(".screw").forEach((sc,i)=>{
+      sc.addEventListener("click",()=>{
+        if(partyActive || sc.classList.contains("hole")) return;
+        const now=Date.now();
+        if(now-first>3000){ hits.clear(); first=now; }
+        hits.add(i);
+        if(hits.size===4){
+          hits.clear(); first=0;
+          gridEl.classList.add("aligned"); blip(880);
+          setTimeout(()=>gridEl.classList.remove("aligned"),2000);   // never stays square
+        }
+      });
+    });
+  })();
+
+  // ---------- M — colour-bar calibration: swatches top to bottom ----------
+  (function(){
+    const bar=[document.querySelector(".knob.k1"), document.querySelector(".knob.k3"),
+               document.querySelector(".tgl"), document.querySelector(".fader"),
+               document.querySelector(".redbtn")].filter(Boolean);
+    if(bar.length<5) return;
+    const INKS=["#00b5e2","#111018","#ff2d72","#ffb25f","#ff6a00"];
+    let step=0, last=0;
+    bar.forEach((el,i)=>{
+      el.addEventListener("click",()=>{
+        if(partyActive) return;
+        const now=Date.now();
+        if(now-last>2200) step=0;                 // sequence times out
+        last=now;
+        if(i===step){ step++; if(step===bar.length){ step=0; runCalibration(); } }
+        else step=(i===0?1:0);                    // wrong chip restarts cleanly
+      });
+    });
+    function runCalibration(){
+      INKS.forEach((c,i)=>setTimeout(()=>{
+        const f=document.createElement("div");
+        f.className="inkflood"; f.style.background=c;
+        panel.appendChild(f); blip(340+i*90);
+        setTimeout(()=>f.remove(),150);
+      }, i*150));
+      setTimeout(()=>{
+        const ok=document.createElement("div");
+        ok.className="stamp ink3"; ok.textContent="FARVER OK"; ok.dataset.t="FARVER OK";
+        ok.style.setProperty("--rot","-6deg");
+        ok.style.left="50%"; ok.style.top="50%";
+        panel.appendChild(ok);
+        setTimeout(()=>{ ok.classList.add("lift");
+                         setTimeout(()=>ok.remove(),520); },1500);
+      }, INKS.length*150);
+    }
+  })();
 
   // ---------- Debug mode (?fejlfinding): Ny plade-knap (ADR-9). Not for participants. ----------
   if(params.has("fejlfinding")){
