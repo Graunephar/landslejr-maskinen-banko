@@ -6,7 +6,7 @@
 <title>BANKO — Maskinen · Landslejr 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ margin:0; height:100%; background:#0c0906; overflow:hidden; }
@@ -331,140 +331,180 @@
   @keyframes ember{ to{ transform:translate(var(--dx),var(--dy)) scale(.15); opacity:0; } }
 
   /* ==========================================================================
-     SENIORFESTIVAL RESKIN (variant A — full poster)
-     Overrides the machine chrome above. Structure/JS untouched: every element
-     the script talks to still exists, so all easter eggs keep working — the
-     machine parts are just repainted as brand objects (screws → accent dots,
-     CRT → count badge, knobs/fader → dots, battery → gradient rail).
-     Tokens: design/seniorfestival-tokens.css · Rules: design/SENIORFESTIVAL-BRAND.md
+     VARIANT A — RISOGRAPH GIG POSTER
+     The machine metaphor is gone: no bezel, no panel, no frame, no glow, no
+     bevels. This is a screenprinted poster — flat spot inks on warm paper,
+     visible grain and halftone, oversized Archivo Black display type, and a
+     deliberate pink misregistration offset under every lit number.
+     Palette is the extracted Seniorfestival system, nothing else.
+     Deliberately shares nothing with variant D (pixels) or variant C (bloom).
      ========================================================================== */
   body{
-    --sf-ink:#111018; --sf-ink-2:#201722;
-    --sf-orange:#ff6a00; --sf-pink:#ff2d72; --sf-red:#ff4a1f;
-    --sf-sand:#ffb25f; --sf-cyan:#00b5e2;
-    --sf-paper:#efe7e2; --sf-paper-2:#d9d3cf;
-    --sf-hot:linear-gradient(135deg,#ff6a00,#ff2d72);
-    /* Re-point the legacy machine tokens at the brand so every unconverted
-       rule (glows, embers, confetti, ads) lands in-palette automatically. */
-    --orange:#ff6a00; --orange-deep:#ff2d72; --glow:#ff6a00; --hot:#ffb25f;
+    --ink:#111018; --paper:#efe7e2; --paper-2:#d9d3cf;
+    --orange:#ff6a00; --pink:#ff2d72; --sand:#ffb25f; --cyan:#00b5e2;
+    --display:"Archivo Black",Impact,sans-serif;
+    --meta:"Archivo",system-ui,sans-serif;
+    /* legacy machine tokens re-pointed so unconverted rules stay in palette */
+    --orange-deep:#ff2d72; --glow:#ff6a00; --hot:#ffb257;
     --teal:#00b5e2; --party:#ff2d72; --party2:#00b5e2;
-    --bg:#111018; --panel:transparent; --plate:#efe7e2; --plate-blank:#d9d3cf;
-    --ink:#111018; --sub:rgba(255,255,255,.58); --btnglow:#ff6a00;
-    font-family:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-    font-weight:500;
+    --bg:#efe7e2; --panel:transparent; --plate:#efe7e2; --plate-blank:#d9d3cf;
+    --bezel1:#efe7e2; --bezel2:#d9d3cf; --glowbg:#efe7e2;
+    --sub:rgba(17,16,24,.55); --btnglow:#ff6a00;
+    font-family:var(--meta); color:var(--ink);
   }
-  html,body{ background:var(--sf-ink); }
+  html,body{ background:var(--paper); }
 
-  /* Stage — poster ground: ink + one corner bloom (never centred). */
+  /* Paper ground + halftone field. Flat inks only — no radial glows anywhere. */
   .stage{ background:
-      radial-gradient(circle at 100% 0%,rgba(255,106,0,.28),transparent 42%),
-      radial-gradient(circle at 0% 100%,rgba(255,45,114,.16),transparent 40%),
-      linear-gradient(135deg,var(--sf-ink-2),var(--sf-ink)); }
+      radial-gradient(rgba(255,106,0,.20) 1.1px,transparent 1.2px) 0 0/9px 9px,
+      radial-gradient(rgba(255,45,114,.13) 1.1px,transparent 1.2px) 4px 4px/9px 9px,
+      var(--paper); }
+  /* Press grain — the texture that sells the print. */
+  .stage::after{ content:""; position:absolute; inset:0; z-index:30; pointer-events:none;
+    opacity:.5; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.42'/></svg>"); }
 
-  /* Frame gone. .bezel/.panel stay in the DOM (shake/hang/throb eggs use them)
-     but stop being metal — the plate now floats on the poster. */
-  .bezel{ background:none; box-shadow:none; padding:0; border-radius:0; max-width:980px; }
-  .panel{ background:none; border:0; border-radius:0; box-shadow:none; padding:4px 10px 8px; }
+  /* No cabinet. The sheet IS the layout. */
+  .bezel{ background:none; box-shadow:none; padding:0; border-radius:0; max-width:1000px; }
+  .panel{ background:none; border:0; border-radius:0; box-shadow:none; padding:0 6px 4px; }
+  /* Grid-breaking watermark, printed under everything in pale sand ink. */
+  .panel::before{ content:"BANKO"; position:absolute; z-index:0; pointer-events:none;
+    left:-3%; bottom:-6%; font-family:var(--display); font-size:26vh; line-height:.8;
+    letter-spacing:-.06em; color:var(--sand); opacity:.30; mix-blend-mode:multiply;
+    transform:rotate(-4deg); }
+  .rail, .batwrap, .grid, .statusbar{ position:relative; z-index:1; }
 
-  /* Screws → corner accent dots. Still clickable, still unscrew. */
-  .screw, .stage .screw{ width:11px; height:11px; background:var(--sf-orange);
-    border:0; box-shadow:0 0 14px rgba(255,106,0,.7); opacity:.85; }
-  .screw::before, .screw::after{ display:none; }
-  .screw.hole{ background:rgba(255,255,255,.10); box-shadow:none; }
-  .s1{top:2px;left:2px}.s2{top:2px;right:2px}.s3{bottom:2px;left:2px}.s4{bottom:2px;right:2px}
-  .stage .s1{top:2px;left:2px}.stage .s2{top:2px;right:2px}
-  .stage .s3{bottom:2px;left:2px}.stage .s4{bottom:2px;right:2px}
+  /* Screws → printed register marks (the crosshairs on a press sheet). */
+  .screw, .stage .screw{ width:14px; height:14px; border-radius:50%; background:none;
+    border:2px solid var(--ink); box-shadow:none; opacity:.5; }
+  .screw::before, .screw::after{ display:block; content:""; position:absolute;
+    background:var(--ink); left:50%; top:50%; }
+  .screw::before{ width:2px; height:22px; transform:translate(-50%,-50%); }
+  .screw::after{ width:22px; height:2px; transform:translate(-50%,-50%); }
+  .screw.hole{ opacity:.18; }
+  .s1{top:0;left:0}.s2{top:0;right:0}.s3{bottom:0;left:0}.s4{bottom:0;right:0}
+  .stage .s1{top:0;left:0}.stage .s2{top:0;right:0}
+  .stage .s3{bottom:0;left:0}.stage .s4{bottom:0;right:0}
 
-  /* Header rail */
-  .rail{ padding:2px 18px 10px; }
-  .title{ color:#fff; font-weight:900; letter-spacing:-.035em; text-indent:0;
-    font-size:clamp(20px,4.4vw,40px); text-shadow:none; }
-  .stage .title{ letter-spacing:-.035em; text-indent:0; }
-  .sub{ color:var(--sf-sand); font-weight:900; text-transform:uppercase;
-    letter-spacing:.08em; text-indent:.08em; margin-top:5px; }
+  /* Masthead — oversized, tilted, ink on paper. */
+  /* Masthead is a real flow item, not an absolutely-centred plate — that is the
+     only way the display type can get big without landing on the chrome. */
+  .rail{ padding:2px 14px 12px; align-items:flex-end; gap:8px 14px; flex-wrap:wrap; }
+  /* Masthead gets its own full-width band above the meta row, so the display
+     type can run large without ever meeting the chrome. */
+  .nameplate{ position:static; transform:none; order:-1; flex:0 0 100%;
+    min-width:0; text-align:left; }
+  .lgroup, .rgroup{ flex:0 0 auto; align-items:center; }
+  .title{ font-family:var(--display); font-weight:400; color:var(--ink);
+    font-size:clamp(26px,7.2vw,76px); letter-spacing:-.055em; text-indent:0;
+    line-height:.82; text-shadow:4px 4px 0 var(--orange); transform:rotate(-2deg);
+    transform-origin:left bottom; }
+  .stage .title{ font-family:var(--display); letter-spacing:-.055em; text-indent:0;
+    font-size:clamp(26px,7.2vw,76px); line-height:.82; }
+  .sub{ font-family:var(--meta); font-weight:700; color:var(--ink);
+    text-transform:uppercase; letter-spacing:.16em; text-indent:.16em;
+    font-size:clamp(7px,1.1vw,12px); margin-top:8px; opacity:.72; white-space:nowrap; line-height:1.4; }
+  .stage .sub{ font-size:clamp(7px,1.1vw,12px); letter-spacing:.16em; text-indent:.16em; }
 
-  /* CRT → ghost count badge (pill, brand type). Phosphor/scanline retired. */
-  .crt{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
-    border-radius:999px; box-shadow:none; }
+  /* Counter → a stamped ink block, not a screen. */
+  .crt{ background:var(--ink); border:0; border-radius:0; box-shadow:none; overflow:visible; }
   .crt-grid, .scan{ display:none; }
-  .crt-num{ color:#fff; font-weight:900; letter-spacing:-.02em; text-shadow:none; }
-  .crt-num span{ color:rgba(255,255,255,.5); font-weight:700; }
+  .crt-num{ font-family:var(--display); font-weight:400; color:var(--paper);
+    font-size:clamp(11px,2vw,22px); letter-spacing:-.04em; text-shadow:none; }
+  .crt-num span{ color:var(--sand); font-size:.6em; }
 
-  /* Chrome controls → brand dots. Kept in DOM so their easter eggs still fire. */
-  .knob{ background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.16); }
-  .knob::after{ left:50%; top:50%; width:6px; height:6px; border-radius:50%;
-    transform:translate(-50%,-50%) !important; background:var(--sf-sand); box-shadow:none; }
-  .tgl{ background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.16); border-radius:999px; }
-  .tgl.on::after{ background:var(--sf-cyan); border-radius:999px; box-shadow:0 0 10px rgba(0,181,226,.8); }
-  .fader{ background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
-    border-radius:999px; box-shadow:none; }
-  .fader::before{ background:rgba(255,255,255,.18); }
-  .fader::after{ background:var(--sf-sand); border-radius:999px; box-shadow:none; }
-  .redbtn{ background:var(--sf-hot); border:0; box-shadow:0 0 18px rgba(255,45,114,.55); }
-  .serial{ color:rgba(255,255,255,.5); font-weight:700; letter-spacing:.04em; text-shadow:none; }
+  /* Chrome → printer's marks and colour-bar chips. All still clickable. */
+  .knob{ border-radius:50%; background:var(--cyan); border:2px solid var(--ink); }
+  .knob::after{ display:none; }
+  .tgl{ border-radius:0; background:var(--pink); border:2px solid var(--ink); }
+  .tgl.on::after{ display:none; }
+  .fader{ border-radius:0; background:var(--sand); border:2px solid var(--ink); box-shadow:none; }
+  .fader::before, .fader::after{ display:none; }
+  .redbtn{ border-radius:50%; background:var(--orange); border:2px solid var(--ink); box-shadow:none; }
+  .serial{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.55;
+    font-size:clamp(7px,1vw,11px); letter-spacing:.14em; text-shadow:none; }
 
-  /* Battery → gradient progress rail (still 15 steps, still the same JS). */
-  .batwrap{ margin:0 2px 12px; }
-  .battery{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
-    border-radius:999px; box-shadow:none; padding:3px; gap:3px; }
-  .battery i{ background:rgba(255,255,255,.07); border-radius:999px; box-shadow:none; }
-  .battery i.on.g, .battery i.on.a, .battery i.on.r{
-    background:var(--sf-hot); box-shadow:0 0 12px rgba(255,45,114,.55); }
+  /* Progress → an ink rule that fills. No gauge, no segments-as-cells. */
+  .batwrap{ margin:0 4px 12px; }
+  .battery{ background:none; border:0; border-bottom:2px solid var(--ink); border-radius:0;
+    box-shadow:none; padding:0 0 4px; gap:4px; }
+  .battery i{ background:rgba(17,16,24,.14); border-radius:0; box-shadow:none; height:8px; }
+  .battery i.on.g, .battery i.on.a, .battery i.on.r{ background:var(--orange); box-shadow:none; }
   .nub{ display:none; }
-  .full .battery{ border-color:rgba(255,106,0,.9); box-shadow:0 0 22px rgba(255,106,0,.45); }
+  .full .battery{ border-bottom-color:var(--orange); box-shadow:none; }
 
-  /* Plate — the hero. No frame, tiles float straight on the poster. */
-  .grid{ background:none; border:0; padding:0; gap:7px; border-radius:0; }
-  .cell{ border-radius:14px; }
-  .cell.num{ background:var(--sf-paper); color:var(--sf-ink); font-weight:900;
-    letter-spacing:-.03em; box-shadow:0 6px 0 rgba(0,0,0,.35); }
-  .cell.num:active{ transform:translateY(3px); box-shadow:0 3px 0 rgba(0,0,0,.35); }
-  .cell.blank{ background:rgba(255,255,255,.035); opacity:1; box-shadow:none; }
-  .cell.lit{ background:var(--sf-hot); color:#fff; text-shadow:none;
-    box-shadow:0 6px 0 rgba(0,0,0,.35),0 0 28px 4px rgba(255,45,114,.55); }
-  @keyframes pulse{
-    0%,100%{ box-shadow:0 6px 0 rgba(0,0,0,.35),0 0 22px 3px rgba(255,45,114,.45) }
-    50%    { box-shadow:0 6px 0 rgba(0,0,0,.35),0 0 34px 8px rgba(255,106,0,.6) } }
+  /* The plate — flat ink blocks, hard edges, paper gutters. */
+  .grid{ background:none; border:0; border-radius:0; padding:0; gap:6px; }
+  .cell{ border-radius:0; overflow:visible; }
+  .cell.num{ background:var(--paper-2); color:var(--ink); box-shadow:none;
+    font-family:var(--display); font-weight:400; letter-spacing:-.04em;
+    transition:background .08s,color .08s; }
+  .cell.num:active{ transform:translate(1px,1px); box-shadow:none; }
+  .cell.blank{ background:none; opacity:1; box-shadow:inset 0 0 0 2px rgba(17,16,24,.10); }
+  .cell.lit{ background:var(--orange); color:var(--ink); text-shadow:none;
+    box-shadow:none; animation:none; }
+  /* Misregistration: a pink plate printed 5px off, multiplied under the orange. */
+  .cell.lit::after{ content:""; position:absolute; inset:0; z-index:-1;
+    background:var(--pink); mix-blend-mode:multiply; transform:translate(5px,5px); }
 
-  /* Status bar */
-  .statusbar{ padding:0 18px; }
-  .pwr{ width:12px; height:12px; background:var(--sf-orange); box-shadow:0 0 14px 3px rgba(255,106,0,.8); }
-  .readout{ color:rgba(255,255,255,.58); font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
-  .rivets i{ background:rgba(255,255,255,.16); box-shadow:none; }
+  /* Status line → press credits set in small caps. */
+  .statusbar{ padding:0 14px; }
+  .pwr{ width:11px; height:11px; border-radius:50%; background:var(--pink);
+    box-shadow:none; animation:none; }
+  .readout{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.6;
+    text-transform:uppercase; letter-spacing:.2em; font-size:9px; }
+  .rivets i{ border-radius:0; width:9px; height:9px; background:var(--cyan);
+    border:1px solid var(--ink); box-shadow:none; }
+  .rivets i:nth-child(2){ background:var(--pink) } .rivets i:nth-child(3){ background:var(--orange) }
+  .rivets i:nth-child(4){ background:var(--sand) } .rivets i:nth-child(5){ background:var(--ink) }
+  .rivets i:nth-child(6){ background:var(--paper-2) }
 
-  /* Party / win — display type, brand gradient. */
-  .win{ background:radial-gradient(circle at 50% 40%,rgba(255,106,0,.22),transparent 55%),rgba(17,16,24,.94); }
-  .win .type{ font-weight:900; letter-spacing:-.04em; text-shadow:0 0 40px rgba(255,45,114,.6); }
-  .win .banko{ color:var(--sf-sand); font-weight:900; letter-spacing:.24em; }
-  .ret .lbl{ color:rgba(255,255,255,.72); font-weight:900; text-transform:uppercase; }
-  .ret .track{ background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); border-radius:999px; box-shadow:none; }
-  .ret .bar{ background:var(--sf-hot); }
+  /* Win — the poster is overprinted edge to edge. */
+  .win{ background:var(--paper); }
+  .win .type{ font-family:var(--display); font-weight:400; color:var(--ink);
+    font-size:clamp(38px,13vw,150px); letter-spacing:-.06em; line-height:.82;
+    text-shadow:8px 8px 0 var(--orange), 16px 16px 0 var(--pink); }
+  .win .banko{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.7;
+    text-transform:uppercase; letter-spacing:.3em; font-size:clamp(9px,1.6vw,14px); }
+  .ret .lbl{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.6;
+    text-transform:uppercase; letter-spacing:.2em; font-size:10px; }
+  .ret .track{ background:none; border:0; border-bottom:3px solid rgba(17,16,24,.18);
+    border-radius:0; box-shadow:none; height:3px; }
+  .ret .bar{ background:var(--ink); height:3px; }
 
-  /* Overlays & eggs kept, repainted */
-  .secret, .plaque, .bigtext{ font-weight:900; letter-spacing:-.02em; }
-  .plaque{ background:rgba(17,16,24,.88); color:var(--sf-sand); text-shadow:0 0 34px rgba(255,106,0,.8); }
-  .bigtext{ text-shadow:0 0 40px rgba(255,45,114,.7),0 0 14px rgba(255,106,0,.7); }
-  .ad{ background:linear-gradient(135deg,#201722,#111018); border:1px solid rgba(255,255,255,.14);
-    border-radius:999px; box-shadow:0 18px 45px rgba(255,45,114,.28); }
-  .adtxt{ color:rgba(255,255,255,.86); }
-  .adtxt b{ color:var(--sf-sand); }
-  .adbtn{ background:var(--sf-hot); border-radius:999px; font-weight:900; letter-spacing:.02em;
-    box-shadow:0 10px 26px rgba(255,45,114,.4); }
-  .adclose{ color:rgba(255,255,255,.5); }
-  .dbg button{ background:var(--sf-hot); border:0; border-radius:999px; font-weight:900; }
-  .dbg .info{ color:rgba(255,255,255,.58); }
-  @keyframes chipflash{ 0%{background:#ffb25f;opacity:.7} 33%{background:#00b5e2;opacity:.7}
-    66%{background:#ff6a00;opacity:.7} 100%{background:#ff2d72;opacity:.7} }
+  /* Overlays & eggs — printed, never glowing. */
+  .secret, .plaque, .bigtext{ font-family:var(--display); font-weight:400; letter-spacing:-.03em; }
+  .secret{ color:var(--ink); text-shadow:3px 3px 0 var(--sand); }
+  .plaque{ background:var(--paper); color:var(--ink); text-shadow:5px 5px 0 var(--orange); }
+  .bigtext{ color:var(--ink); text-shadow:6px 6px 0 var(--orange), 12px 12px 0 var(--pink); }
+  .aura::before{ background:radial-gradient(circle at 50% 47%,rgba(255,178,95,.30),transparent 62%);
+    mix-blend-mode:multiply; }
+  .aura::after{ display:none; }
+  .ember{ border-radius:50%; background:var(--pink); box-shadow:none; }
+  .pulsering{ border-radius:50%; border:5px solid var(--ink); box-shadow:none; }
+  .ad{ background:var(--ink); border:0; border-radius:0; box-shadow:8px 8px 0 var(--orange); }
+  .adtxt{ color:var(--paper); font-family:var(--meta); }
+  .adtxt b{ color:var(--sand); }
+  .adbtn{ font-family:var(--meta); font-weight:700; background:var(--orange); color:var(--ink);
+    border-radius:0; box-shadow:none; letter-spacing:.1em; text-transform:uppercase; }
+  .adclose{ color:var(--paper); opacity:.6; }
+  .dbg button{ font-family:var(--meta); font-weight:700; background:var(--ink); color:var(--paper);
+    border:0; border-radius:0; text-transform:uppercase; letter-spacing:.1em; }
+  .dbg .info{ color:var(--ink); opacity:.6; }
+  @keyframes chipflash{ 0%{background:var(--sand);opacity:.6} 33%{background:var(--cyan);opacity:.6}
+    66%{background:var(--orange);opacity:.6} 100%{background:var(--pink);opacity:.6} }
+  @keyframes strobe{ 0%{background:var(--paper);opacity:.85} 25%{background:var(--pink);opacity:.6}
+    50%{background:var(--ink);opacity:.2} 75%{background:var(--cyan);opacity:.6}
+    100%{background:var(--orange);opacity:.7} }
   .beams{ background:conic-gradient(from 0deg,
-      transparent 0 14deg, rgba(255,106,0,.55) 14deg 22deg, transparent 22deg 60deg,
-      rgba(255,45,114,.5) 60deg 68deg, transparent 68deg 108deg,
-      rgba(0,181,226,.45) 108deg 116deg, transparent 116deg 168deg,
-      rgba(255,178,95,.55) 168deg 176deg, transparent 176deg 240deg,
-      rgba(255,106,0,.5) 240deg 248deg, transparent 248deg 300deg,
-      rgba(255,45,114,.45) 300deg 308deg, transparent 308deg 360deg); }
+      transparent 0 16deg, rgba(255,106,0,.40) 16deg 24deg, transparent 24deg 76deg,
+      rgba(255,45,114,.36) 76deg 84deg, transparent 84deg 136deg,
+      rgba(0,181,226,.32) 136deg 144deg, transparent 144deg 196deg,
+      rgba(255,178,95,.40) 196deg 204deg, transparent 204deg 360deg);
+    mix-blend-mode:multiply; }
 
   @media (prefers-reduced-motion:reduce){
-    .cell.lit, .pwr, .scan, .beams.on{ animation:none !important; }
+    .beams.on{ animation:none !important; }
   }
 </style>
 </head>
@@ -480,8 +520,8 @@
         <div class="knobs"><span class="knob k1"></span><span class="knob k3"></span><span class="tgl on"></span></div>
       </div>
       <div class="nameplate">
-        <div class="title" id="title">MASKINEN</div>
-        <div class="sub">BANKO · LANDSLEJR 2026</div>
+        <div class="title" id="title">BANKO</div>
+        <div class="sub">RØGVENDERRAPPORTEN · SENIORFESTIVAL 2026</div>
       </div>
       <div class="rgroup">
         <span class="fader"></span>
