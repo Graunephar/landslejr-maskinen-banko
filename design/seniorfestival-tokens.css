@@ -1,0 +1,88 @@
+/* Seniorfestival — brand tokens. Extracted from seniorfestival.dk (2026-09).
+   Drop-in for new projects. See SENIORFESTIVAL-BRAND.md for rules. */
+:root{
+  /* Core ink */
+  --sf-ink:#111018;          /* near-black, the real "black" of the brand */
+  --sf-ink-2:#201722;        /* warm dark, gradient partner */
+  --sf-ink-3:#241827;        /* plum dark, gradient partner */
+  --sf-white:#ffffff;
+
+  /* Brand accents */
+  --sf-orange:#ff6a00;       /* primary */
+  --sf-pink:#ff2d72;         /* primary partner (gradient end) */
+  --sf-red:#ff4a1f;          /* kicker/eyebrow text on light */
+  --sf-sand:#ffb25f;         /* warm secondary */
+  --sf-cyan:#00b5e2;         /* cool secondary, used sparingly */
+
+  /* Light surfaces (the paper sections) */
+  --sf-paper:#efe7e2;        /* warmest */
+  --sf-paper-2:#d9d3cf;      /* greyer */
+
+  /* Signature gradients */
+  --sf-grad-hot:linear-gradient(135deg,var(--sf-orange),var(--sf-pink));
+  --sf-grad-cool:linear-gradient(135deg,var(--sf-cyan),var(--sf-sand));
+  --sf-grad-dark:linear-gradient(135deg,var(--sf-ink-2),var(--sf-ink));
+  --sf-glow-tl:radial-gradient(circle at 100% 0%,rgba(255,106,0,.28),transparent 40%);
+
+  /* Type */
+  --sf-font:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --sf-w-display:1000;       /* headlines, buttons, badges */
+  --sf-w-body:500;
+  --sf-lh-display:.8;        /* headlines are tight */
+  --sf-lh-body:1.7;
+
+  /* Radii */
+  --sf-r-pill:999px;
+  --sf-r-card:34px;
+  --sf-r-md:22px;
+  --sf-r-sm:14px;
+
+  /* Shadows */
+  --sf-sh-btn:0 18px 45px rgba(255,45,114,.38);
+  --sf-sh-btn-cool:0 18px 45px rgba(0,181,226,.25);
+  --sf-sh-card:18px 18px 0 rgba(255,106,0,.34), 0 28px 80px rgba(0,0,0,.45); /* hard offset + soft drop */
+  --sf-sh-soft:0 24px 60px rgba(0,0,0,.28);
+
+  /* Layout */
+  --sf-max:1080px;
+  --sf-section-y:102px;
+  --sf-section-x:24px;
+  --sf-gutter:30px;
+
+  --sf-ease:.22s cubic-bezier(.2,.7,.3,1);
+}
+
+/* --- Primitives --- */
+.sf-btn{
+  display:inline-block; font:var(--sf-w-display) 18px/1 var(--sf-font);
+  padding:18px 30px; border:0; border-radius:var(--sf-r-pill);
+  background:var(--sf-grad-hot); color:var(--sf-white);
+  box-shadow:var(--sf-sh-btn); cursor:pointer;
+  transition:transform var(--sf-ease), box-shadow var(--sf-ease);
+}
+.sf-btn:hover{ transform:translateY(-2px); }
+.sf-btn--cool{ background:var(--sf-grad-cool); color:var(--sf-ink); box-shadow:var(--sf-sh-btn-cool); }
+
+.sf-badge{
+  display:inline-block; font:var(--sf-w-display) 12px/1 var(--sf-font);
+  text-transform:uppercase; letter-spacing:.4px;
+  padding:10px 14px; border-radius:var(--sf-r-pill);
+  background:var(--sf-grad-hot); color:var(--sf-white);
+}
+.sf-badge--ghost{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:rgba(255,255,255,.86); }
+
+.sf-card{
+  border-radius:var(--sf-r-card); background:var(--sf-ink); color:var(--sf-white);
+  box-shadow:var(--sf-sh-card); overflow:hidden;
+}
+
+.sf-kicker{ font:var(--sf-w-display) 14px/1.4 var(--sf-font);
+  text-transform:uppercase; letter-spacing:.8px; color:var(--sf-red); }
+
+.sf-display{ font:var(--sf-w-display) clamp(40px,8vw,102px)/var(--sf-lh-display) var(--sf-font);
+  letter-spacing:-.055em; margin:0; }
+
+.sf-section-dark{ background:var(--sf-glow-tl),var(--sf-grad-dark); color:var(--sf-white);
+  padding:var(--sf-section-y) var(--sf-section-x); }
+.sf-section-light{ background:var(--sf-paper); color:#000;
+  padding:var(--sf-section-y) var(--sf-section-x); }
