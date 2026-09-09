@@ -374,10 +374,13 @@
   .panel{ background:none; border:0; border-radius:0; box-shadow:none;
     padding:0 6px 4px; overflow:visible; }
   /* Grid-breaking watermark, printed under everything in pale sand ink. */
-  .panel::before{ content:"BANKO"; position:absolute; z-index:0; pointer-events:none;
-    left:-14%; bottom:-22%; font-family:var(--display); font-size:46vh; line-height:.8;
-    letter-spacing:-.06em; color:var(--sand); opacity:.30; mix-blend-mode:multiply;
-    transform:rotate(-4deg); }
+  /* Watermark: centred on the sheet and scaled off the long viewport axis so
+     it fills the width the machine actually has, in either orientation. */
+  .panel::before{ content:"BANKO"; position:absolute; inset:0; z-index:0;
+    pointer-events:none; display:flex; align-items:center; justify-content:center;
+    font-family:var(--display); font-size:27vmax; line-height:.78;
+    letter-spacing:-.065em; color:var(--sand); opacity:.30; mix-blend-mode:multiply;
+    transform:rotate(-4deg); white-space:nowrap; }
   .rail, .batwrap, .grid, .statusbar{ position:relative; z-index:1; }
 
   /* Screws → printed register marks (the crosshairs on a press sheet). */
