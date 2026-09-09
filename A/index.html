@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>BANKO — Maskinen · Landslejr 2026</title>
+<title>BANKO — Røgvenderrapporten · Seniorfestival 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
@@ -365,11 +365,17 @@
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.42'/></svg>"); }
 
   /* No cabinet. The sheet IS the layout. */
-  .bezel{ background:none; box-shadow:none; padding:0; border-radius:0; max-width:1000px; }
-  .panel{ background:none; border:0; border-radius:0; box-shadow:none; padding:0 6px 4px; }
+  /* No cabinet and no clip. html/body already hide scrollbars, so ink is free
+     to bleed past the old machine box and off the sheet — the way a poster
+     trims. The box only survives as a centring device for the plate. */
+  .stage{ overflow:visible; }
+  .bezel{ background:none; box-shadow:none; padding:0; border-radius:0;
+    max-width:1000px; overflow:visible; }
+  .panel{ background:none; border:0; border-radius:0; box-shadow:none;
+    padding:0 6px 4px; overflow:visible; }
   /* Grid-breaking watermark, printed under everything in pale sand ink. */
   .panel::before{ content:"BANKO"; position:absolute; z-index:0; pointer-events:none;
-    left:-3%; bottom:-6%; font-family:var(--display); font-size:26vh; line-height:.8;
+    left:-14%; bottom:-22%; font-family:var(--display); font-size:46vh; line-height:.8;
     letter-spacing:-.06em; color:var(--sand); opacity:.30; mix-blend-mode:multiply;
     transform:rotate(-4deg); }
   .rail, .batwrap, .grid, .statusbar{ position:relative; z-index:1; }
