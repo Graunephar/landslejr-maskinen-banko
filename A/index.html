@@ -599,6 +599,9 @@
      accumulate, so the sheet fills with press marks; the eighth one calls a
      re-pull and the whole lot lifts at once. Stamps never take pointer
      events, so marking numbers is never blocked. --------------------- */
+  /* a long press on iOS otherwise raises the selection callout and eats the
+     gesture before the timer fires */
+  .panel{ -webkit-touch-callout:none; user-select:none; -webkit-user-select:none; }
   .stamp{ position:absolute; z-index:6; pointer-events:none;
     font-family:var(--display); font-weight:400; letter-spacing:-.02em;
     font-size:clamp(13px,2.4vmax,30px); line-height:1; white-space:nowrap;
@@ -1394,18 +1397,24 @@
     },900);
   }
 
+  let stampFrom=null;
   panel.addEventListener("pointerdown",e=>{
     if(partyActive||stampBusy) return;
     if(e.target.closest(STAMP_SKIP)) return;         // never over a live target
     const r=panel.getBoundingClientRect();
     const px=e.clientX-r.left, py=e.clientY-r.top;
-    stampTimer=setTimeout(()=>{ stampTimer=null; slamStamp(px,py); },560);
+    stampFrom={x:e.clientX,y:e.clientY};
+    stampTimer=setTimeout(()=>{ stampTimer=null; stampFrom=null; slamStamp(px,py); },560);
   });
-  ["pointerup","pointercancel","pointerleave","pointermove"].forEach(t=>
-    panel.addEventListener(t,e=>{
-      if(t==="pointermove" && stampTimer===null) return;
-      clearTimeout(stampTimer); stampTimer=null;
-    }));
+  // A finger is never still. Only a real drag cancels the press — cancelling on
+  // any pointermove at all made this unusable on touch.
+  panel.addEventListener("pointermove",e=>{
+    if(stampTimer===null||!stampFrom) return;
+    if(Math.hypot(e.clientX-stampFrom.x, e.clientY-stampFrom.y) < 12) return;
+    clearTimeout(stampTimer); stampTimer=null; stampFrom=null;
+  });
+  ["pointerup","pointercancel","pointerleave"].forEach(t=>
+    panel.addEventListener(t,()=>{ clearTimeout(stampTimer); stampTimer=null; stampFrom=null; }));
 
 
   // ---------- L — crop-mark alignment: all four crosshairs within 3s ----------
