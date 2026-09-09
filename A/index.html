@@ -393,42 +393,71 @@
   .stage .s3{bottom:0;left:0}.stage .s4{bottom:0;right:0}
 
   /* Masthead — oversized, tilted, ink on paper. */
-  /* Masthead is a real flow item, not an absolutely-centred plate — that is the
-     only way the display type can get big without landing on the chrome. */
-  .rail{ padding:2px 14px 12px; align-items:flex-end; gap:8px 14px; flex-wrap:wrap; }
-  /* Masthead gets its own full-width band above the meta row, so the display
-     type can run large without ever meeting the chrome. */
-  .nameplate{ position:static; transform:none; order:-1; flex:0 0 100%;
-    min-width:0; text-align:left; }
-  .lgroup, .rgroup{ flex:0 0 auto; align-items:center; }
+  /* ---- Sheet composition (mobile-first) --------------------------------
+     The header band was a control strip: counter, chips and serial in one
+     row. Broken apart — the counter is a big overprinted numeral in the top
+     corner, the serial runs up the left trim like a print code, the chips
+     are an ink-swatch column on the right trim, and the status line stays
+     along the bottom. Nothing sits in a row with anything else.
+     The wrappers become display:contents so each mark is placed against the
+     sheet directly; every element stays in the DOM and stays clickable.
+     Sizes use vmin so they hold in the rotated portrait machine too. ---- */
+  .lgroup, .rgroup{ display:contents; }
+  /* static, so the trim marks below resolve against the sheet (.panel),
+     not against this now-tiny masthead band */
+  .rail{ position:static; display:block; padding:0; margin:0 0 6px; }
+  .nameplate{ position:static; transform:none; text-align:left;
+    max-width:none; padding:0 0 0 2px; }
   .title{ font-family:var(--display); font-weight:400; color:var(--ink);
-    font-size:clamp(26px,7.2vw,76px); letter-spacing:-.055em; text-indent:0;
-    line-height:.82; text-shadow:4px 4px 0 var(--orange); transform:rotate(-2deg);
-    transform-origin:left bottom; }
+    letter-spacing:-.055em; text-indent:0; line-height:.8;
+    font-size:clamp(24px,5.2vmax,64px);
+    text-shadow:4px 4px 0 var(--orange); transform:rotate(-2deg);
+    transform-origin:left bottom; display:inline-block; }
   .stage .title{ font-family:var(--display); letter-spacing:-.055em; text-indent:0;
-    font-size:clamp(26px,7.2vw,76px); line-height:.82; }
+    font-size:clamp(24px,5.2vmax,64px); line-height:.8; }
   .sub{ font-family:var(--meta); font-weight:700; color:var(--ink);
-    text-transform:uppercase; letter-spacing:.16em; text-indent:.16em;
-    font-size:clamp(7px,1.1vw,12px); margin-top:8px; opacity:.72; white-space:nowrap; line-height:1.4; }
-  .stage .sub{ font-size:clamp(7px,1.1vw,12px); letter-spacing:.16em; text-indent:.16em; }
+    text-transform:uppercase; letter-spacing:.15em; text-indent:.15em;
+    font-size:clamp(6px,1.15vmax,12px); margin-top:7px; opacity:.72;
+    white-space:nowrap; line-height:1.4; }
+  .stage .sub{ font-size:clamp(6px,1.15vmax,12px); letter-spacing:.15em; text-indent:.15em; }
 
-  /* Counter → a stamped ink block, not a screen. */
-  .crt{ background:var(--ink); border:0; border-radius:0; box-shadow:none; overflow:visible; }
+  /* Room on the trims for the marks that now live there. */
+  .panel{ padding:2px 30px 2px 22px; }
+
+  /* Counter → a big number overprinted into the top corner. Not a readout. */
+  .crt{ position:absolute; top:-2px; right:26px; z-index:3;
+    width:auto; height:auto; background:none; border:0; border-radius:0;
+    box-shadow:none; overflow:visible; }
   .crt-grid, .scan{ display:none; }
-  .crt-num{ font-family:var(--display); font-weight:400; color:var(--paper);
-    font-size:clamp(11px,2vw,22px); letter-spacing:-.04em; text-shadow:none; }
-  .crt-num span{ color:var(--sand); font-size:.6em; }
+  .crt-num{ position:static; display:block; font-family:var(--display);
+    font-weight:400; color:var(--orange); mix-blend-mode:multiply;
+    font-size:clamp(28px,6.2vmax,82px); line-height:.8; letter-spacing:-.06em;
+    text-shadow:none; }
+  .crt-num span{ color:var(--ink); opacity:.45; font-size:.34em; }
 
-  /* Chrome → printer's marks and colour-bar chips. All still clickable. */
+  /* Serial → print code running up the left trim. */
+  .serial{ position:absolute; left:4px; bottom:14%; z-index:3;
+    transform:rotate(-90deg); transform-origin:left bottom; white-space:nowrap;
+    font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.5;
+    font-size:clamp(7px,1.05vmax,11px); letter-spacing:.34em; text-shadow:none; }
+  .stage .serial{ font-size:clamp(7px,1.05vmax,11px); }
+
+  /* Chips → an ink-swatch column down the right trim. */
+  .knobs{ position:absolute; right:6px; top:34%; z-index:3;
+    flex-direction:column; gap:7px; }
+  .fader{ position:absolute; right:6px; bottom:22%; z-index:3; }
+  .redbtn{ position:absolute; right:6px; bottom:12%; z-index:3; }
   .knob{ border-radius:50%; background:var(--cyan); border:2px solid var(--ink); }
   .knob::after{ display:none; }
   .tgl{ border-radius:0; background:var(--pink); border:2px solid var(--ink); }
   .tgl.on::after{ display:none; }
-  .fader{ border-radius:0; background:var(--sand); border:2px solid var(--ink); box-shadow:none; }
+  .fader{ border-radius:0; background:var(--sand); border:2px solid var(--ink);
+    box-shadow:none; }
   .fader::before, .fader::after{ display:none; }
-  .redbtn{ border-radius:50%; background:var(--orange); border:2px solid var(--ink); box-shadow:none; }
-  .serial{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.55;
-    font-size:clamp(7px,1vw,11px); letter-spacing:.14em; text-shadow:none; }
+  .redbtn{ border-radius:50%; background:var(--orange); border:2px solid var(--ink);
+    box-shadow:none; }
+  .knob, .tgl, .fader, .redbtn,
+  .stage .knob, .stage .tgl, .stage .fader, .stage .redbtn{ width:15px; height:15px; }
 
   /* Progress → an ink rule that fills. No gauge, no segments-as-cells. */
   .batwrap{ margin:0 4px 12px; }
