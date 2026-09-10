@@ -443,6 +443,15 @@
     font-size:clamp(6px,.95vmax,10px); line-height:1; }
   .stage .sub{ font-size:clamp(6px,.95vmax,10px); letter-spacing:.22em; text-indent:.22em; }
 
+  /* The endorsement line under the masthead. Set in the meta face rather than
+     the display one — at 31 characters the display face would either dwarf
+     BANKO or have to shrink to nothing. */
+  .nameplate::after{ content:"ANBEFALET AF RØGVENDERRAPPORTEN"; display:block;
+    margin-top:7px; font-family:var(--meta); font-weight:700; color:var(--ink);
+    text-transform:uppercase; letter-spacing:.19em; opacity:.75;
+    font-size:clamp(6px,1.15vmax,12px); line-height:1.3; white-space:nowrap;
+    text-shadow:var(--mx,2px) var(--my,2px) 0 var(--mc,var(--cyan)); }
+
   /* Room on the trims for the marks that now live there. */
   .panel{ padding:2px 30px 2px 22px; }
 
@@ -671,7 +680,7 @@
       </div>
       <div class="nameplate">
         <div class="title" id="title">BANKO</div>
-        <div class="sub">RØGVENDERRAPPORTEN · SENIORFESTIVAL 2026</div>
+        <div class="sub">SENIORFESTIVAL 2026</div>
       </div>
       <div class="rgroup">
         <span class="fader"></span>
