@@ -847,14 +847,19 @@
   // offending ink, re-rolled on each render, so the "printing error" never
   // repeats in the same direction or the same colour order twice.
   const MIS_INKS=["#ff2d72","#ff6a00","#00b5e2","#ffb25f","#111018"];
-  function misreg(el,max,minAbs){
+  // multiplied under an orange plate, the ink-black option turns a tile olive,
+  // which reads as a broken tile rather than a misprint — tiles get the
+  // coloured inks only.
+  const MIS_INKS_TILE=["#ff2d72","#ff6a00","#00b5e2","#ffb25f"];
+  function misreg(el,max,minAbs,inks){
     if(!el) return;
+    inks=inks||MIS_INKS;
     max=max||6; minAbs=minAbs===undefined?2:minAbs;
     const off=()=>{ let v=(Math.random()*2-1)*max;
       if(Math.abs(v)<minAbs) v=v<0?-minAbs:minAbs; return v.toFixed(1)+"px"; };
     el.style.setProperty("--mx",off());
     el.style.setProperty("--my",off());
-    el.style.setProperty("--mc",MIS_INKS[Math.floor(Math.random()*MIS_INKS.length)]);
+    el.style.setProperty("--mc",inks[Math.floor(Math.random()*inks.length)]);
   }
   function misregSheet(){
     misreg(document.querySelector(".title"),7,3);
@@ -900,7 +905,7 @@
       const h=parseInt(serialOf(grid).slice(-4),16)||0;
       numCells[h%numCells.length].classList.add("pasted");
     }
-    gridEl.querySelectorAll(".cell").forEach(c=>misreg(c, c.classList.contains("blank")?4:7, 2));
+    gridEl.querySelectorAll(".cell").forEach(c=>misreg(c, c.classList.contains("blank")?4:7, 2, MIS_INKS_TILE));
     misregSheet();
     prevCompleteRows=completeRows();
     refreshReadouts();
@@ -910,7 +915,7 @@
     if(partyActive) return;
     if(marks.has(v)) marks.delete(v); else marks.add(v);
     cell.classList.toggle("lit", marks.has(v));
-    misreg(cell,7,2);                    // fresh drift each time the plate is pulled
+    misreg(cell,7,2,MIS_INKS_TILE);      // fresh drift each time the plate is pulled
     saveMarks(marks);
     refreshReadouts();
     if(v===90 && marks.has(90)) emberBurst(cell);   // E — gnist ved 90
@@ -950,7 +955,8 @@
     confetti=[];
     for(let i=0;i<160;i++) confetti.push({
       x:rnd(cv.width), y:-rnd(cv.height), w:5+rnd(10), h:6+rnd(14),
-      vy:2+rnd(4), vx:(rnd(200)-100)/34, rot:rnd(360), vr:(rnd(200)-100)/7,
+      vy:2+rnd(4), vx:(rnd(200)-100)/34, rot:rnd(360), vr:(rnd(200)-100)/3,
+      flip:rnd(360)/57, vf:(3+rnd(6))/120,
       col:CONF_COLORS[rnd(CONF_COLORS.length)]
     });
     cancelAnimationFrame(confAF); confAF=requestAnimationFrame(confStep);
@@ -958,9 +964,10 @@
   function confStep(){
     cx.clearRect(0,0,cv.width,cv.height);
     for(const p of confetti){
-      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.flip+=p.vf;
       if(p.y>cv.height+20){ p.y=-20; p.x=rnd(cv.width); }
       cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot*Math.PI/180);
+      cx.scale(Math.cos(p.flip),1);            // edge-on when the cosine crosses zero
       cx.fillStyle=p.col; cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore();
     }
     confAF=requestAnimationFrame(confStep);
@@ -973,12 +980,14 @@
     const cxp=cv.width/2, cyp=cv.height*0.5, parts=[];
     for(let i=0;i<130;i++){ const a=Math.PI*2*rnd(360)/360, sp=4+rnd(10);
       parts.push({x:cxp+rnd(70)-35, y:cyp+rnd(40)-20, w:5+rnd(7), h:8+rnd(9),
-        vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-4, rot:rnd(360), vr:(rnd(200)-100)/5, col:CONF_COLORS[rnd(CONF_COLORS.length)], life:1 }); }
+        vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-4, rot:rnd(360), vr:(rnd(200)-100)/2.2,
+        flip:rnd(360)/57, vf:(5+rnd(10))/120,
+        col:CONF_COLORS[rnd(CONF_COLORS.length)], life:1 }); }
     let frame=0; cancelAnimationFrame(confAF);
     (function tick(){
       cx.clearRect(0,0,cv.width,cv.height);
-      parts.forEach(p=>{ p.vy+=0.35; p.x+=p.vx; p.y+=p.vy; p.vx*=0.99; p.rot+=p.vr; p.life-=0.013;
-        if(p.life>0){ cx.globalAlpha=Math.max(0,p.life); cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot*Math.PI/180); cx.fillStyle=p.col; cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore(); } });
+      parts.forEach(p=>{ p.vy+=0.35; p.x+=p.vx; p.y+=p.vy; p.vx*=0.99; p.rot+=p.vr; p.flip+=p.vf; p.life-=0.013;
+        if(p.life>0){ cx.globalAlpha=Math.max(0,p.life); cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot*Math.PI/180); cx.scale(Math.cos(p.flip),1); cx.fillStyle=p.col; cx.fillRect(-p.w/2,-p.h/2,p.w,p.h); cx.restore(); } });
       cx.globalAlpha=1;
       if(++frame<82) confAF=requestAnimationFrame(tick); else cx.clearRect(0,0,cv.width,cv.height);
     })();
