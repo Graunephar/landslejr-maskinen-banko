@@ -522,8 +522,10 @@
   /* 4 — blanks are a pale sand plate, so the sheet reads as three inks. */
   /* 2 — the sand plate drifts the other way; multi-plate drift is what makes
      a riso pull look hand-made rather than one shared offset. */
+  /* Tiles stay on the grid. Only the ink plate under a lit tile drifts —
+     moving the tiles themselves turned the plate into noise. */
   .cell.blank{ background:rgba(255,178,95,.20); opacity:1; box-shadow:none;
-    mix-blend-mode:multiply; transform:translate(var(--mx,-2px),var(--my,-2px)); }
+    mix-blend-mode:multiply; }
   /* 3 — on a two-colour pull the paper shows through the type. */
   .cell.num.lit{ background:var(--orange); color:var(--paper); text-shadow:none;
     box-shadow:none; animation:none; }
