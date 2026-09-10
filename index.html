@@ -194,7 +194,11 @@
   .dbg .info{ color:#a98d68; font-size:10px; }
 
   /* --- Party overlay (ADR-12): win-type + confetti + return countdown --- */
-  .confetti{ position:absolute; inset:0; pointer-events:none; z-index:7; }
+  /* Confetti is a sibling of the stage and fixed to the viewport, so it is
+     never clipped by the sheet and never rotated with it in portrait — paper
+     falls down the real screen, not down the machine. */
+  .confetti{ position:fixed; inset:0; width:100vw; height:100vh;
+    width:100dvw; height:100dvh; pointer-events:none; z-index:60; }
   .win{ position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:clamp(24px,7vh,56px);
     background:rgba(20,15,11,.74); opacity:0; pointer-events:none; transition:opacity .25s; }
   .win.show{ opacity:1; pointer-events:auto; }
@@ -709,7 +713,6 @@
       <a class="adbtn" id="ytlink" href="https://www.youtube.com/@rogvenderrapporten" target="_blank" rel="noopener">Åben youtube →</a>
       <span class="adclose" id="ytclose">✕</span>
     </div>
-    <canvas class="confetti" id="confetti"></canvas>
     <div class="win" id="win">
       <div class="type" id="wintype">BANKO!</div>
       <div class="banko">TILLYKKE!!!</div>
@@ -722,6 +725,7 @@
   </div>
   </div>
 
+<canvas class="confetti" id="confetti"></canvas>
 <script>
 (function(){
   "use strict";
@@ -896,9 +900,15 @@
   // Confetti — plain canvas, no lib.
   const cv=$("#confetti"), cx=cv.getContext("2d");
   let confetti=[], confAF=0;
-  const CONF_COLORS=["#ff6b1a","#ffb257","#c94fd6","#42d6c0","#fff"];
+  const CONF_COLORS=["#ff6a00","#ff2d72","#ffb25f","#00b5e2","#efe7e2"];
+  function sizeConfetti(){
+    const w=Math.round(cv.clientWidth||innerWidth), h=Math.round(cv.clientHeight||innerHeight);
+    if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; }
+  }
+  addEventListener("resize",sizeConfetti);
+  addEventListener("orientationchange",()=>setTimeout(sizeConfetti,60));
   function startConfetti(){
-    cv.width=panel.clientWidth; cv.height=panel.clientHeight;
+    sizeConfetti();
     confetti=[];
     for(let i=0;i<160;i++) confetti.push({
       x:rnd(cv.width), y:-rnd(cv.height), w:5+rnd(7), h:8+rnd(9),
@@ -921,7 +931,7 @@
 
   // One-shot confetti POP — bursts out from centre with gravity, fades, self-clears (~1.3s). No rain.
   function popConfetti(){
-    cv.width=panel.clientWidth; cv.height=panel.clientHeight;
+    sizeConfetti();
     const cxp=cv.width/2, cyp=cv.height*0.5, parts=[];
     for(let i=0;i<130;i++){ const a=Math.PI*2*rnd(360)/360, sp=4+rnd(10);
       parts.push({x:cxp+rnd(70)-35, y:cyp+rnd(40)-20, w:5+rnd(7), h:8+rnd(9),
