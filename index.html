@@ -699,7 +699,7 @@
     <div class="grid" id="grid"></div>
 
     <div class="statusbar">
-      <span class="pwr"></span><span class="readout">TRYK FOR AT TÆNDE LYSET</span><span class="rivets" id="rivets"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="pwr"></span><span class="readout">TRYK FOR AT SÆTTE FARVE</span><span class="rivets" id="rivets"><i></i><i></i><i></i><i></i><i></i><i></i></span>
     </div>
 
     <div class="dbg" id="dbg" hidden>
@@ -1468,14 +1468,14 @@
 
   // ---------- Easter eggs I/J ----------
   let msgBusy=false; const aura=$("#aura");
-  // I — tap the "TRYK FOR AT TÆNDE LYSET" label → in-place tease (at the element, like the serial stamp)
+  // I — tap the "TRYK FOR AT SÆTTE FARVE" label → in-place tease (at the element, like the serial stamp)
   const readoutEl=document.querySelector(".readout"); let roBusy=false;
   readoutEl.addEventListener("click",()=>{
     if(roBusy) return; roBusy=true;
-    readoutEl.textContent="IKKE HER — TRYK PÅ TALLENE, HAHA";
+    readoutEl.textContent="IKKE HER — FARVEN SKAL PÅ TALLENE";
     readoutEl.classList.remove("tease"); void readoutEl.offsetWidth; readoutEl.classList.add("tease");
     blip(620);
-    setTimeout(()=>{ readoutEl.textContent="TRYK FOR AT TÆNDE LYSET"; readoutEl.classList.remove("tease"); roBusy=false; },2400);
+    setTimeout(()=>{ readoutEl.textContent="TRYK FOR AT SÆTTE FARVE"; readoutEl.classList.remove("tease"); roBusy=false; },2400);
   });
   // J — seniorkursus-beskeder (tilted text + warm breathing aura). 5 variations across 5 spots.
   function seniorMsg(word){
