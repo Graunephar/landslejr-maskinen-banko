@@ -184,7 +184,8 @@
   .rivets{ margin-left:24px; display:flex; align-items:center; gap:10px; flex:none; }
   .rivets i{ width:9px; height:9px; border-radius:50%; background:radial-gradient(circle at 35% 30%,#6b5738,#241a10 78%); box-shadow:inset 0 0 1px #000,0 1px 0 rgba(255,255,255,.08); cursor:pointer; }
   .readout{ margin-left:auto; color:var(--sub); font-size:10px; letter-spacing:.2em; cursor:pointer; white-space:nowrap }
-  .readout.tease{ animation:stamp .4s ease; color:var(--hot); text-shadow:0 0 8px var(--glow) }
+  .readout.tease{ animation:stamp .4s ease; color:var(--pink); opacity:1;
+    text-shadow:var(--mx,2px) var(--my,2px) 0 var(--mc,var(--orange)) }
   .party .pwr{ background:var(--party2); box-shadow:0 0 10px 3px var(--party) }
 
   /* Debug (?fejlfinding) */
@@ -549,6 +550,9 @@
   .statusbar{ padding:0 14px; }
   .readout{ font-size:8px; letter-spacing:.17em; }
   .readout::after{ content:" · TRYKT I NR. SNEDE"; opacity:.55; }
+  /* the tease line is longer than the status line, so the colophon would run
+     off the trim behind it */
+  .readout.tease::after{ display:none; }
   .pwr{ width:11px; height:11px; border-radius:50%; background:var(--pink);
     box-shadow:none; animation:none; }
   .readout{ font-family:var(--meta); font-weight:700; color:var(--ink); opacity:.6;
@@ -576,9 +580,16 @@
 
   /* Overlays & eggs — printed, never glowing. */
   .secret, .plaque, .bigtext{ font-family:var(--display); font-weight:400; letter-spacing:-.03em; }
-  .secret{ color:var(--ink); text-shadow:3px 3px 0 var(--sand); }
-  .plaque{ background:var(--paper); color:var(--ink); text-shadow:5px 5px 0 var(--orange); }
-  .bigtext{ color:var(--ink); text-shadow:6px 6px 0 var(--orange), 12px 12px 0 var(--pink); }
+  /* Egg text is printed in ink, not in the sheet's body colour — orange with
+     a drifting second plate, so it reads as an extra pull rather than as
+     part of the page. The offset ink is randomised like every other mark. */
+  .secret{ color:var(--orange);
+    text-shadow:var(--mx,4px) var(--my,4px) 0 var(--mc,var(--pink)); }
+  .plaque{ background:var(--paper); color:var(--pink);
+    text-shadow:var(--mx,5px) var(--my,5px) 0 var(--mc,var(--ink)); }
+  .bigtext{ color:var(--pink);
+    text-shadow:var(--mx,6px) var(--my,6px) 0 var(--mc,var(--orange)),
+                12px 12px 0 rgba(17,16,24,.35); }
   .aura::before{ background:radial-gradient(circle at 50% 47%,rgba(255,178,95,.30),transparent 62%);
     mix-blend-mode:multiply; }
   .aura::after{ display:none; }
@@ -871,6 +882,10 @@
     misreg(document.querySelector(".nameplate"),4,2);
     misreg(document.querySelector(".crt-num"),5,2);
     misreg(document.querySelector(".win .type"),12,5);
+    misreg(document.querySelector(".secret"),6,3);
+    misreg(document.querySelector(".bigtext"),9,4);
+    misreg(document.querySelector(".plaque"),7,3);
+    misreg(document.querySelector(".readout"),3,1.5);
     document.querySelectorAll(".knob,.tgl,.fader,.redbtn,.rivets i")
             .forEach(el=>misreg(el,4,2));
     // the watermark uses its own props so it can drift much further
