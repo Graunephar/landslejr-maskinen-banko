@@ -1518,8 +1518,9 @@
   const RIVET_WORDS=["din instruktør","din krop","din hjerne","din mor","dit humør","dine tæer"];
   [...document.querySelectorAll("#rivets i")].forEach((r,i)=> r.addEventListener("click",()=>seniorMsg(RIVET_WORDS[i])));
 
-  // ---------- Easter egg: tap MASKINEN 3× fast → machine "thinks, then answers". ----------
-  const MAGI=["ANALYSERER...","MAGI: 51%","TEKNOLOGI: 49%","KAN IKKE SKELNE"];
+  // ---------- Easter egg: tap the masthead 3× fast → the press runs a colour
+  // check on the sheet, then calls it good. ----------
+  const MAGI=["KONTROLLERER FARVEN…","ORANGE: OK","LYSERØD: SKÆV","SÅDAN SKAL DEN VÆRE"];
   const bigtext=$("#bigtext"), beams=$("#beams");
   let taps=0, tt=null, magiT=null, magiBusy=false;
   function magiShow(){
@@ -1539,7 +1540,7 @@
     })();
   }
   function magiFinal(){                                 // full party: big text + spotlights + dancing plate + VU + confetti pop
-    bigtext.textContent="HEY DET ER BEGGE DELE"; bigtext.classList.add("show");
+    bigtext.textContent="HIP HIP ORANGE!"; bigtext.classList.add("show");
     panel.classList.add("party"); gridEl.classList.add("dance"); beams.classList.add("on");
     startVU(); popConfetti(); playTechno(4);
     blip(880); setTimeout(()=>blip(1180),130); setTimeout(()=>blip(1560),260);
